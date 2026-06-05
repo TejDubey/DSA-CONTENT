@@ -1,0 +1,995 @@
+DIKSTRAS ALGO 
+SHORTEST PATH ALGO
+
+RB
+
+1. Anu is given a weighted, undirected, and connected graph with V vertices and E edges represented as an adjacency list. They are also given a source vertex S.  
+
+The task is to find the shortest distance from the source vertex S to all other vertices in the graph using Dijkstra's algorithm.
+
+Input format :
+The first line contains an integer V representing the number of vertices in the graph.
+
+The second line contains an integer E representing the number of edges in the graph.
+
+The next E lines contain three integers each: from, to, and weight, denoting an edge between vertices from and to with the given weight.
+
+The last line contains an integer S representing the source vertex.
+
+Output format :
+The output prints "Shortest distances from vertex S to all other vertices: " followed by the shortest distances from the source vertex S to all other vertices in the graph, separated by a space.
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In the given scenario, the test cases will fall under the following constraints:
+
+1 ≤ V ≤ 100
+
+0 ≤ E ≤ V * (V - 1) / 2
+
+0 ≤ S < V
+
+0 ≤ from, to < V
+
+0 ≤ weight ≤ 100
+
+Sample test cases :
+Input 1 :
+2
+1
+0 1 9
+0
+Output 1 :
+Shortest distances from vertex 0 to all other vertices: 0 9 
+Input 2 :
+3 
+3
+0 1 1
+0 2 6
+1 2 3
+2
+Output 2 :
+Shortest distances from vertex 2 to all other vertices: 4 3 0 
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+#define INF 1000000000
+
+typedef struct Node {
+    int v, w;
+    struct Node* next;
+} Node;
+
+Node* adj[105];
+int dist[105];
+int visited[105];
+
+Node* createNode(int v, int w) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->v = v;
+    node->w = w;
+    node->next = NULL;
+    return node;
+}
+
+int main() {
+    int V, E;
+    scanf("%d", &V);
+    scanf("%d", &E);
+
+    for (int i = 0; i < V; i++) {
+        adj[i] = NULL;
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    for (int i = 0; i < E; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+
+        Node* n1 = createNode(v, w);
+        n1->next = adj[u];
+        adj[u] = n1;
+
+        Node* n2 = createNode(u, w);
+        n2->next = adj[v];
+        adj[v] = n2;
+    }
+
+    int S;
+    scanf("%d", &S);
+
+    dist[S] = 0;
+
+    for (int i = 0; i < V; i++) {
+        int u = -1, dmin = INF;
+
+        for (int j = 0; j < V; j++) {
+            if (!visited[j] && dist[j] < dmin) {
+                dmin = dist[j];
+                u = j;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        Node* temp = adj[u];
+        while (temp != NULL) {
+            int v = temp->v;
+            int w = temp->w;
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+            }
+            temp = temp->next;
+        }
+    }
+
+    printf("Shortest distances from vertex %d to all other vertices: ", S);
+    for (int i = 0; i < V; i++) {
+        printf("%d ", dist[i]);
+    }
+
+    return 0;
+}
+
+
+2. John, a logistics manager, is tasked with finding the shortest delivery route between two warehouses in a city using Dijkstra's algorithm. The city's road network is represented as a graph, where intersections are nodes and roads are weighted edges. 
+
+
+
+Help John determine the quickest route between the two warehouses based on the provided road network.
+
+Input format :
+The first line of input consists of an integer n, representing the number of intersections in the city.
+
+The second line of input consists of an integer m, representing the number of roads connecting intersections.
+
+The next m lines each contain three integers u, v, and w, where u and v are two intersections connected by a road of weight w.
+
+The last two lines consist of integers source and destination, which represent the starting and destination intersections, respectively.
+
+Output format :
+If a path exists, the first line of output prints "Shortest path: " followed by the shortest path from the source to the destination, with each intersection separated by " -> ".
+
+The second line prints "Shortest distance: " followed by the total distance of the shortest path.
+
+If no path exists, output "No path found".
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following specifications:
+
+1 ≤ n ≤ 100
+
+1 ≤ m ≤ 100
+
+0 ≤ u, v < n
+
+0 ≤ w ≤ 100
+
+0 ≤ s, d < n
+
+Sample test cases :
+Input 1 :
+4
+5
+0 1 2
+0 2 4
+1 2 1
+1 3 7
+2 3 3
+0
+3
+Output 1 :
+Shortest path: 0 -> 1 -> 2 -> 3
+Shortest distance: 6
+Input 2 :
+5
+7
+0 1 2
+0 2 6
+0 3 1
+1 2 3
+1 4 5
+2 3 2
+3 4 1
+0
+4
+Output 2 :
+Shortest path: 0 -> 3 -> 4
+Shortest distance: 2
+Input 3 :
+3
+2
+0 1 5
+1 2 3
+0
+2
+Output 3 :
+Shortest path: 0 -> 1 -> 2
+Shortest distance: 8
+Input 4 :
+5
+4
+0 1 2
+0 3 3
+1 3 4
+0 2 5
+0
+4
+Output 4 :
+No path found
+
+// You are using GCC
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX 105
+#define INF 1000000000
+
+int adj[MAX][MAX];
+int dist[MAX];
+int visited[MAX];
+int parent[MAX];
+
+int main() {
+    int n, m;
+    scanf("%d", &n);
+    scanf("%d", &m);
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            adj[i][j] = (i == j ? 0 : INF);
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        adj[u][v] = w;
+        adj[v][u] = w;
+    }
+
+    int src, dest;
+    scanf("%d", &src);
+    scanf("%d", &dest);
+
+    dist[src] = 0;
+
+    for (int count = 0; count < n; count++) {
+        int u = -1, best = INF;
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] && adj[u][v] < INF) {
+                if (dist[u] + adj[u][v] < dist[v]) {
+                    dist[v] = dist[u] + adj[u][v];
+                    parent[v] = u;
+                }
+            }
+        }
+    }
+
+    if (dist[dest] == INF) {
+        printf("No path found");
+        return 0;
+    }
+
+    int path[MAX], len = 0;
+    int cur = dest;
+    while (cur != -1) {
+        path[len++] = cur;
+        cur = parent[cur];
+    }
+
+    printf("Shortest path: ");
+    for (int i = len - 1; i >= 0; i--) {
+        printf("%d", path[i]);
+        if (i > 0) printf(" -> ");
+    }
+    printf("\n");
+
+    printf("Shortest distance: %d", dist[dest]);
+
+    return 0;
+}
+
+
+3. Raj is given a weighted directed graph with N vertices and the weights of the edges between the vertices. 
+
+
+
+His task is to implement Dijkstra's algorithm to find the shortest distance from a given source vertex to all other vertices in the graph.
+
+Input format :
+The first line contains an integer N, the number of vertices in the graph.
+
+The next N lines contain x integers each, representing the adjacency matrix of the graph. The value at the i-th row and j-th column represents the weight of the edge from vertex i to vertex j. If there is no direct edge between the vertices, the value will be 0.
+
+The last line contains an integer src, representing the source vertex.
+
+
+
+Refer to the sample input for formatting specifications.
+
+Output format :
+The output prints N lines, each containing two integers separated by two tab space. Each line represents a vertex and its corresponding shortest distance from the source vertex. The vertices are numbered from 0 to N-1.
+
+The heading line should be "Vertex Distance from Source"
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following specifications:
+
+1 ≤ N ≤103
+
+0 ≤ graph[i][j] ≤ 103
+
+0 ≤ source < N
+
+Sample test cases :
+Input 1 :
+4
+0 2 0 5
+2 0 4 0
+0 4 0 1
+5 0 1 0
+0
+Output 1 :
+Vertex Distance from Source
+0		0
+1		2
+2		6
+3		5
+Input 2 :
+3
+0 3 0
+3 0 2
+0 2 0
+1
+Output 2 :
+Vertex Distance from Source
+0		3
+1		0
+2		2
+
+// You are using GCC
+#include <stdio.h>
+
+#define INF 1000000000
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    int graph[1005][1005];
+    int dist[1005], visited[1005];
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            scanf("%d", &graph[i][j]);
+
+    int src;
+    scanf("%d", &src);
+
+    for (int i = 0; i < N; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    dist[src] = 0;
+
+    for (int k = 0; k < N; k++) {
+        int u = -1, best = INF;
+        for (int i = 0; i < N; i++) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        for (int v = 0; v < N; v++) {
+            if (graph[u][v] > 0 && !visited[v]) {
+                if (dist[u] + graph[u][v] < dist[v]) {
+                    dist[v] = dist[u] + graph[u][v];
+                }
+            }
+        }
+    }
+
+    printf("Vertex Distance from Source\n");
+    for (int i = 0; i < N; i++) {
+        printf("%d\t\t%d\n", i, dist[i]);
+    }
+
+    return 0;
+}
+
+
+4. You are tasked with finding the shortest communication paths from a source router to all other routers in a network using Dijkstra's algorithm. 
+
+
+
+The network is represented as a graph, where routers are nodes and communication links between them are edges with weights (representing the time or cost of communication).
+
+
+
+Example
+
+Input: 
+
+source = 0, the graph is shown below.
+
+
+
+
+
+
+
+Output: 
+
+0 4 12 19 21 11 9 8 14
+
+
+
+Explanation: 
+
+The distance from 0 to 1 = 4.
+
+The minimum distance from 0 to 2 = 12.
+
+0->1->2
+
+The minimum distance from 0 to 3 = 19.
+
+0->1->2->3
+
+The minimum distance from 0 to 4 = 21.
+
+0->7->6->5->4
+
+The minimum distance from 0 to 5 = 11.
+
+0->7->6->5
+
+The minimum distance from 0 to 6 = 9.
+
+0->7->6
+
+The minimum distance from 0 to 7 = 8.
+
+0->7
+
+The minimum distance from 0 to 8 = 14.
+
+0->1->2->8
+
+Input format :
+The first line of input consists of the number of vertices, V in the graph.
+
+The next lines of input consist of an adjacency matrix graph of size V x V representing the graph.
+
+The last line of input consists of an integer representing the source vertex.
+
+Output format :
+For each vertex v, print the line v distance, where v is the vertex index and distance is the minimum distance from the source vertex to v in the following format:
+
+"Vertex" followed by a space and then use tab space after print "Distance from Source"("Vertex \tDistance from Source\n")
+
+vertex1 followed by three-tab spaces and then use a space after print source1.
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following specifications:
+
+1 ≤ V ≤ 10
+
+0 ≤ src < V
+
+Edge weights are positive integers or zero.
+
+Sample test cases :
+Input 1 :
+3
+0 2 5
+2 0 1
+5 1 0
+0
+Output 1 :
+Vertex 	Distance from Source
+0			 0
+1			 2
+2			 3
+Input 2 :
+9
+0 4 0 0 0 0 0 8 0
+4 0 8 0 0 0 0 11 0
+0 8 0 7 0 4 0 0 2
+0 0 7 0 9 14 0 0 0
+0 0 0 9 0 10 0 0 0
+0 0 4 14 10 0 2 0 0
+0 0 0 0 0 2 0 1 6
+8 11 0 0 0 0 1 0 7
+0 0 2 0 0 0 6 7 0
+0
+Output 2 :
+Vertex 	Distance from Source
+0			 0
+1			 4
+2			 12
+3			 19
+4			 21
+5			 11
+6			 9
+7			 8
+8			 14
+Expected Time Complexity : O(N^2)
+Expected Space Complexity : O(N^2)
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+// You are using GCC
+#include <stdio.h>
+
+#define INF 1000000000
+
+int main() {
+    int V;
+    scanf("%d", &V);
+
+    int graph[15][15];
+    int dist[15];
+    int visited[15];
+
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            scanf("%d", &graph[i][j]);
+
+    int src;
+    scanf("%d", &src);
+
+    for (int i = 0; i < V; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    dist[src] = 0;
+
+    for (int count = 0; count < V; count++) {
+        int u = -1, best = INF;
+        for (int i = 0; i < V; i++) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        for (int v = 0; v < V; v++) {
+            if (graph[u][v] > 0 && !visited[v]) {
+                if (dist[u] + graph[u][v] < dist[v]) {
+                    dist[v] = dist[u] + graph[u][v];
+                }
+            }
+        }
+    }
+
+    printf("Vertex \tDistance from Source\n");
+    for (int i = 0; i < V; i++) {
+        printf("%d\t\t %d\n", i, dist[i]);
+    }
+
+    return 0;
+}
+
+-------------------------------------------------------------------------------------------
+
+CY
+
+
+5. Arjun is working on a project where he needs to find the shortest paths from a given source vertex to all other vertices in a directed weighted graph. He needs to use Dijkstra's algorithm to calculate the shortest distances and paths for each vertex.
+
+
+
+The graph consists of N vertices and M edges, where each edge represents a directed connection between two vertices. Each edge has a weight that indicates the distance or cost between the two vertices it connects. The task is to find the shortest paths from a given source vertex to all other vertices in the graph. The source vertex is provided as input, and the goal is to calculate and print the shortest distance from this source to every other vertex, along with the path taken.
+
+
+
+Help Arjun implement the algorithm to calculate the shortest paths from the source vertex to all other vertices. For each vertex, print the shortest distance and the corresponding path.
+
+Input format :
+The first line contains two integers N and M: the number of vertices and edges.
+
+The next M lines contain three integers u, v, and w: indicating an edge from vertex u to vertex v with weight w.
+
+The last line contains a single integer S: the source vertex.
+
+Output format :
+For each vertex (except the source), print the shortest distance from the source and the path taken in the format:
+
+<distance> <path>, where the path starts with the source and ends with the respective vertex, and each vertex in the path is connected by an arrow " -> ".
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following specifications:
+
+1 ≤ N ≤ 1000
+
+1 ≤ M ≤ 10000
+
+0 ≤ u, v < N
+
+1 ≤ w ≤ 1000
+
+The graph can have multiple edges between the same pair of vertices (but not necessarily self-loops).
+
+S (source vertex) is always a valid vertex in the range [0, N-1].
+
+Sample test cases :
+Input 1 :
+3 3
+0 1 4
+0 2 1
+2 1 2
+0
+Output 1 :
+3 0 -> 2 -> 1
+1 0 -> 2
+Input 2 :
+3 1
+1 2 4
+1
+Output 2 :
+4 1 -> 2
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+// You are using GCC
+#include <stdio.h>
+#include <limits.h>
+
+#define INF 1000000000
+
+typedef struct {
+    int v, w;
+} Edge;
+
+Edge adj[1005][10005];
+int edgeCount[1005];
+
+int dist[1005];
+int parent[1005];
+int visited[1005];
+
+int main() {
+    int N, M;
+    scanf("%d %d", &N, &M);
+
+    for (int i = 0; i < N; i++) {
+        edgeCount[i] = 0;
+        dist[i] = INF;
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+
+    for (int i = 0; i < M; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        adj[u][edgeCount[u]].v = v;
+        adj[u][edgeCount[u]].w = w;
+        edgeCount[u]++;
+    }
+
+    int S;
+    scanf("%d", &S);
+
+    dist[S] = 0;
+
+    for (int k = 0; k < N; k++) {
+        int u = -1, best = INF;
+
+        for (int i = 0; i < N; i++) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        for (int i = 0; i < edgeCount[u]; i++) {
+            int v = adj[u][i].v;
+            int w = adj[u][i].w;
+
+            if (!visited[v] && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                parent[v] = u;
+            }
+        }
+    }
+
+    for (int v = 0; v < N; v++) {
+        if (v == S) continue;
+
+        if (dist[v] == INF) continue;
+
+        printf("%d ", dist[v]);
+
+        int path[1005], len = 0, cur = v;
+        while (cur != -1) {
+            path[len++] = cur;
+            cur = parent[cur];
+        }
+
+        for (int i = len - 1; i >= 0; i--) {
+            printf("%d", path[i]);
+            if (i > 0) printf(" -> ");
+        }
+
+        printf("\n");
+    }
+
+    return 0;
+}
+
+
+6. 
+Raja is given a map of cities represented as vertices and roads connecting these cities represented as directed edges with associated weights. His task is to find the shortest path from a specified starting city to all other cities using Dijkstra's algorithm.
+
+
+
+Note: The given graph is a directed graph.
+
+Input format :
+The first line contains two integers n and m, separated by a space, where n represents the number of cities, and m represents the number of roads.
+
+The next m lines describe the roads. Each line contains three integers, u, v, and w, separated by spaces. u is the starting city, v is the ending city, and w is the length of the road.
+
+The last line contains an integer S, which is the starting city.
+
+Output format :
+The output consists of n-1 lines.
+
+
+
+Each line contains one of the following two types of output:
+
+If there is a reachable path from the starting city to the corresponding city, print: "City x: y units", where x is the city number and y is the shortest distance from the source city to city x.
+
+If there is no path from the starting city to the corresponding city, print: "City x: Not reachable", where x is the city number.
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In this scenario, the given test cases will fall under the following constraints:
+
+1 ≤ n ≤ 100
+
+0 ≤ m ≤ (n) * (n - 1)
+
+0 ≤ u, v < n
+
+0 ≤ w ≤ INT_MAX (Maximum value of integer)
+
+Sample test cases :
+Input 1 :
+4 4
+0 1 5
+0 2 3
+1 3 2
+2 3 3
+1
+Output 1 :
+City 0: Not reachable
+City 2: Not reachable
+City 3: 2 units
+Input 2 :
+5 7
+0 1 2
+0 2 4
+1 3 5
+2 3 1
+2 4 7
+3 4 3
+4 0 2
+0
+Output 2 :
+City 1: 2 units
+City 2: 4 units
+City 3: 5 units
+City 4: 8 units
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+// You are using GCC
+#include <stdio.h>
+
+#define INF 1000000000
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[105][105];
+    int dist[105], visited[105], parent[105];
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+
+    int s, d;
+    scanf("%d", &s);
+    scanf("%d", &d);
+
+    dist[s] = 0;
+
+    for (int k = 0; k < n; k++) {
+        int u = -1, best = INF;
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && dist[i] < best) {
+                best = dist[i];
+                u = i;
+            }
+        }
+
+        if (u == -1) break;
+        visited[u] = 1;
+
+        for (int v = 0; v < n; v++) {
+            if (graph[u][v] > 0 && !visited[v]) {
+                if (dist[u] + graph[u][v] < dist[v]) {
+                    dist[v] = dist[u] + graph[u][v];
+                    parent[v] = u;
+                }
+            }
+        }
+    }
+
+    printf("Shortest path: %d\n", dist[d]);
+
+    int path[105], len = 0, cur = d;
+    while (cur != -1) {
+        path[len++] = cur;
+        cur = parent[cur];
+    }
+
+    printf("Path: ");
+    for (int i = len - 1; i >= 0; i--) {
+        printf("%d", path[i]);
+        if (i > 0) printf(" -> ");
+    }
+
+    return 0;
+}
+
+8. Aaryan is working on a project to find the shortest path between two cities in a road network. The road network is represented as a directed graph where cities are nodes, and roads between them are weighted edges. The weight of an edge represents the distance between two cities. 
+
+
+
+Aaryan needs to calculate the shortest distance from a source city to a destination city using Dijkstra's Algorithm. If there is no possible path from the source city to the destination city, he needs to return -1.
+
+
+
+Help Aaryan implement the algorithm to compute the shortest path and its distance from a source city to a destination city in a given road network.
+
+Input format :
+The first line contains an integer n, the number of cities in the road network.
+
+The second line contains an integer e, the number of roads in the network.
+
+The next e lines each contain three integers u, v, and w, representing a road from city u to city v with distance w.
+
+The next line contains two integers, source and destination, which are the cities between which the shortest path is to be calculated.
+
+Output format :
+If there exists a path from source to destination, print the shortest distance followed by the path in the format:
+
+<shortest_distance>
+
+<path_from_source_to_destination>
+
+If there is no path from source to destination, print -1.
+
+
+
+Note:
+
+The path is represented by the sequence of cities starting from the source and ending at the destination, separated by " -> ".
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following specifications:
+
+1 ≤ n ≤ 100
+
+1 ≤ e ≤ 1000
+
+0 ≤ u, v < n
+
+1 ≤ w ≤ 1000
+
+0 ≤ source, destination < n (Source and destination cities are valid and indexed in the range [0, n-1])
+
+The graph may contain multiple roads between two cities, but not necessarily self-loops.
+
+Sample test cases :
+Input 1 :
+4 4
+0 1 10
+1 2 5
+2 3 2
+0 3 25
+0 3
+Output 1 :
+17
+0 -> 1 -> 2 -> 3 
+Input 2 :
+3 2
+0 1 10
+1 2 5
+0 2
+Output 2 :
+15
+0 -> 1 -> 2 
+Input 3 :
+4 2
+0 1 5
+1 2 3
+0 3
+Output 3 :
+-1
+

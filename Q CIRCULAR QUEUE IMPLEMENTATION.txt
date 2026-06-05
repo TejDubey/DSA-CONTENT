@@ -1,0 +1,73 @@
+Q CIRCULAR QUEUE IMPLEMENTATION: 
+
+#include <stdio.h>
+#define MAX_SIZE 10
+int queue[10];
+int front=0;
+int rear=-1;
+void enqueue(int x,int n){
+    if(rear<n-1){
+        if(x%2==0){
+            queue[++rear]=x;
+        }
+        else{
+            printf("Only even numbers can be enqueued!\n");
+        }
+    }
+    else{
+        printf("Queue overflow\n");
+    }
+}
+void dequeue(){
+    if(front<=rear){
+        if(queue[front]>queue[rear]){
+            printf("Element dequeued: %d\n",queue[front]);
+            front++;
+        }
+        else{
+            printf("Element dequeued: %d\n",queue[rear]);
+            rear--;
+        }
+    }
+    else{
+        printf("Queue Underflow\n");
+    }
+}
+void display(){
+    if(front<=rear){
+        printf("Queue elements: ");
+        for(int i=front;i<=rear;i++){
+            printf("%d ",queue[i]);
+        }
+        printf("\n");
+    }
+    else{
+        printf("Queue is empty!\n");
+    }
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    int n1;
+    while(scanf("%d",&n1)!=-1){
+        switch(n1){
+            case 1:
+            int x;
+            scanf("%d",&x);
+            enqueue(x,n);
+            break;
+            case 2:
+            dequeue();
+            break;
+            case 3:
+            display();
+            break;
+            case 4:
+            printf("Exit");
+            break;
+            default:
+            printf("Invalid choice\n");
+            break;
+        }
+    }
+}

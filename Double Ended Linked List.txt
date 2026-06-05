@@ -1,0 +1,875 @@
+Single File Programming Question
+Problem Statement
+
+
+
+Rohit is developing a Book Management System where book records are maintained using a Doubly Linked List. The system allows him to dynamically add, remove, and efficiently search for book IDs. He wants to implement a menu-driven program that provides the following operations:
+
+
+
+Insert at Front – Add a book ID at the beginning of the list.
+Insert at End – Add a book ID at the end of the list.
+Insert at Position – Add a book ID at a specified position.
+Delete First – Remove the first book ID.
+Delete End – Remove the last book ID.
+Delete at Position – Remove a book ID from a specified position.
+Search – Find if a book ID exists in the list.
+Traverse – Display all book IDs in order.
+Exit – Terminate the program.
+
+
+Help Rohit implement this system by writing a Doubly Linked List with the required functionalities.
+
+Input format :
+The input consists of the following choices:
+
+If the choice is 1, 1 X → Insert book ID X at the front.
+
+If the choice is 2, 2 X → Insert book ID X at the end.
+
+If the choice is 3, 3 P X → Insert book ID X at position P.
+
+If the choice is 4, 4 → Delete the first book ID.
+
+If the choice is 5, 5 → Delete the last book ID.
+
+If the choice is 6, 6 P → Delete the book ID at position P.
+
+If the choice is 7, 7 X → Search for book ID X.
+
+If the choice is 8, 8 → Traverse the linked list and print the book IDs in order.
+
+If the choice is 9, 9 → Exit the program.
+
+If the choice is greater than 9, print "Wrong choice".
+
+Output format :
+The output displays the results based on the choice.
+
+If the choice is 8, Print the book IDs separated by spaces in order. If the list is empty, print "List is empty".
+
+For Insert at Position (x): If the position()x is invalid, print "Position out of range", otherwise insert the element.
+
+For Delete First (x) and Delete End (x): If the list is empty, print "List is empty".
+
+For Delete at Position (x): If the position is invalid, print "Position out of range" else print "Node Inserted".
+
+For Search (x):
+
+If the element exists, print "The element X is at index Y in the list".
+Otherwise, print "The element X is not found in the list".
+For invalid choice: Print "Wrong Choice".
+
+
+
+Note: The code follows 1-based indexing. No output for Choices 1, 2, 4, 5, and 9.
+
+
+
+Refer to the sample output for better understanding.
+
+Code constraints :
+The given test cases fall under the following constraints:
+
+Valid choice: 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+1 ≤ Number of operations ≤ 100
+
+1 ≤ X ≤ 1000 (Book ID values)
+
+1 ≤ P ≤ (Current DLL size + 1)
+
+Sample test cases :
+Input 1 :
+1 10
+1 20
+8
+3 2 30
+8
+2 40
+2 50
+8
+9
+Output 1 :
+20 10 
+Node Inserted
+20 30 10 
+20 30 10 40 50 
+Input 2 :
+10
+9
+Output 2 :
+Wrong Choice
+Input 3 :
+2 10
+2 20
+2 30
+2 40
+8
+4
+8
+5
+8
+6 1
+8
+9
+Output 3 :
+10 20 30 40 
+20 30 40 
+20 30 
+30 
+Input 4 :
+2 10
+2 20
+2 30
+8
+7 30
+6 7
+6 2
+8
+9
+Output 4 :
+10 20 30 
+The element 30 is at index 3 in the list
+Position out of range
+10 30 
+Input 5 :
+4
+5
+1 10
+2 20
+3 3 80
+1 30
+2 40
+7 60
+7 30
+1 50
+8
+11
+9
+Output 5 :
+List is empty
+List is empty
+Node Inserted
+The element 60 is not found in the list
+The element 30 is at index 1 in the list
+50 30 10 20 80 40 
+Wrong Choice
+Expected Time Complexity : O(N^2)
+Expected Space Complexity : O(N^2)
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node{
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+void insertFront(struct Node** head,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    newnode->prev=NULL;
+    newnode->next=*head;
+    if(*head!=NULL) (*head)->prev=newnode;
+    *head=newnode;
+}
+
+void insertEnd(struct Node** head,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    newnode->next=NULL;
+    newnode->prev=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL) temp=temp->next;
+    temp->next=newnode;
+    newnode->prev=temp;
+}
+
+void insertAtPos(struct Node** head,int pos,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    newnode->prev=NULL;
+    newnode->next=NULL;
+    if(pos==1){
+        newnode->next=*head;
+        if(*head!=NULL) (*head)->prev=newnode;
+        *head=newnode;
+        printf("Node Inserted\n");
+        return;
+    }
+    struct Node* temp=*head;
+    int i;
+    for(i=1;i<pos-1 && temp!=NULL;i++) temp=temp->next;
+    if(temp==NULL){
+        printf("Position out of range\n");
+        free(newnode);
+    } else {
+        newnode->next=temp->next;
+        newnode->prev=temp;
+        if(temp->next!=NULL) temp->next->prev=newnode;
+        temp->next=newnode;
+        printf("Node Inserted\n");
+    }
+}
+
+void deleteFirst(struct Node** head){
+    if(*head==NULL){
+        printf("List is empty\n");
+        return;
+    }
+    struct Node* temp=*head;
+    *head=(*head)->next;
+    if(*head!=NULL) (*head)->prev=NULL;
+    free(temp);
+}
+
+void deleteEnd(struct Node** head){
+    if(*head==NULL){
+        printf("List is empty\n");
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL) temp=temp->next;
+    if(temp->prev!=NULL) temp->prev->next=NULL;
+    else *head=NULL;
+    free(temp);
+}
+
+void deleteAtPos(struct Node** head,int pos){
+    if(*head==NULL){
+        printf("Position out of range\n");
+        return;
+    }
+    if(pos==1){
+        struct Node* temp=*head;
+        *head=(*head)->next;
+        if(*head!=NULL) (*head)->prev=NULL;
+        free(temp);
+        return;
+    }
+    struct Node* temp=*head;
+    int i;
+    for(i=1;i<pos && temp!=NULL;i++) temp=temp->next;
+    if(temp==NULL) printf("Position out of range\n");
+    else{
+        if(temp->prev!=NULL) temp->prev->next=temp->next;
+        if(temp->next!=NULL) temp->next->prev=temp->prev;
+        free(temp);
+    }
+}
+
+void search(struct Node* head,int x){
+    struct Node* temp=head;
+    int idx=1,found=0;
+    while(temp!=NULL){
+        if(temp->data==x){
+            printf("The element %d is at index %d in the list\n",x,idx);
+            found=1;
+            break;
+        }
+        temp=temp->next;
+        idx++;
+    }
+    if(!found) printf("The element %d is not found in the list\n",x);
+}
+
+void traverse(struct Node* head){
+    if(head==NULL) printf("List is empty\n");
+    else{
+        struct Node* temp=head;
+        while(temp!=NULL){
+            printf("%d ",temp->data);
+            temp=temp->next;
+        }
+        printf("\n");
+    }
+}
+
+int main(){
+    struct Node* head=NULL;
+    int choice;
+    while(scanf("%d",&choice)!=-1){
+        switch(choice){
+            case 1:{
+            int x;
+            scanf("%d",&x);
+            insertFront(&head,x);
+            break;}
+            
+            case 2:{
+            int x;
+            scanf("%d",&x);
+            insertEnd(&head,x);
+            break;}
+            
+            case 3:{
+            int pos,x;
+            scanf("%d %d",&pos,&x);
+            insertAtPos(&head,pos,x);
+            break;}
+
+            case 4:
+            deleteFirst(&head);
+            break;
+            
+            case 5:
+            deleteEnd(&head);
+            break;
+            
+            case 6:{
+            int pos;
+            scanf("%d",&pos);
+            deleteAtPos(&head,pos);
+            break;}
+
+            case 7:{
+            int x;
+            scanf("%d",&x);
+            search(head,x);
+            break;}
+                
+            case 8:
+            traverse(head);
+            break;
+            
+            case 9:
+            return 0;
+            
+            default:
+            printf("Wrong Choice\n");
+            break;
+        }
+    }
+}
+
+
+________________________________________________________________________________________________________________________
+
+
+Q2. Imagine you're managing a store's inventory list, and some products were accidentally entered multiple times. You need to remove the duplicate products from the list to ensure each product appears only once.
+
+
+
+You have an unsorted doubly linked list of product IDs. Some of these product IDs may appear more than once, and your goal is to remove any duplicates.
+
+
+
+Note: Insert elements at the front of the doubly linked list.
+
+Input format :
+The first line of input consists of an integer n, representing the number of elements in the list.
+
+The second line of input consists of n space-separated integers representing the list elements.
+
+Output format :
+The output prints the final list after removing duplicate nodes, separated by a space.
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+In this scenario, the test cases fall under the following constraints:
+
+2 ≤ n ≤ 30
+
+1 ≤ elements in the list ≤ 100
+
+Sample test cases :
+Input 1 :
+10
+12 12 10 4 8 4 6 4 4 8
+Output 1 :
+8 4 6 10 12 
+Input 2 :
+4
+1 1 2 2
+Output 2 :
+2 1 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+void addFront(struct Node** head, int x) {
+    struct Node* newnode = (struct Node*)malloc(sizeof(struct Node));
+    newnode->data = x;
+    newnode->prev = NULL;
+    newnode->next = *head;
+    if (*head != NULL)
+        (*head)->prev = newnode;
+    *head = newnode;
+}
+
+void removedupli(struct Node** head) {
+    int seen[101] = {0}; 
+    struct Node* curr = *head;
+    while (curr != NULL) {
+        if (seen[curr->data]) {
+            struct Node* del = curr;
+            curr = curr->next;
+            if (del->prev != NULL)
+                del->prev->next = del->next;
+            if (del->next != NULL)
+                del->next->prev = del->prev;
+            free(del);
+        } else {
+            seen[curr->data] = 1;
+            curr = curr->next;
+        }
+    }
+}
+
+// Display list
+void display(struct Node* head) {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d", temp->data);
+        if (temp->next != NULL)
+            printf(" ");
+        temp = temp->next;
+    }
+}
+
+int main() {
+    struct Node* head = NULL;
+    int n, x;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &x);
+        addFront(&head, x); 
+    }
+
+    removedupli(&head);
+    display(head);
+
+    return 0;
+}
+
+
+
+Q3. Saran is tasked with implementing a doubly linked list in data structures, allowing users to append elements to the end of the list, and remove the last element. He needs to ensure efficient memory management in the implementation.
+
+Assist him with a suitable program.
+
+Input 1 :
+5
+48 22 5 62 87
+Output 1 :
+48 22 5 62 
+Input 2 :
+7
+65 20 87 61 44 67 31
+Output 2 :
+65 20 87 61 44 67 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node*next;
+    struct Node*prev;
+};
+void addnode(struct Node**head, int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node*temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+    newnode->prev=temp;
+    newnode->next=NULL;
+}
+void deletelast(struct Node** head){
+    //min 2 elements(ignore for 0 and 1 elements)
+    struct Node* temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->prev->next=NULL;
+    free(temp);
+}
+void display(struct Node* head){
+    struct Node* temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+}
+int main(){
+    struct Node*head=NULL;
+    int x;
+    scanf("%d",&x);
+    for(int i=0;i<x;i++){
+        int y;
+        scanf("%d",&y);
+        addnode(&head,y);
+    }
+    deletelast(&head);
+    display(head);
+}
+
+____________________________________________________________________________________________________________________________________________________________
+
+Challenge Yourself:
+
+Q4.  insert new integers into the list and delete a node at a specific position. After deleting it, he needs to display the updated list. 
+
+Input 1 :
+5
+10 20 30 40 50
+4
+Output 1 :
+Node at position 4 with value 40 deleted successfully.
+Data present in the list:
+10 20 30 50 
+Input 2 :
+5
+10 52 63 74 85
+7
+Output 2 :
+Position 7 not found in the list.
+Data present in the list:
+10 52 63 74 85 
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node* next;
+    struct Node*prev;
+};
+void insertnode(struct Node** head, int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->prev=NULL;
+    newnode->next=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+    newnode->next=NULL;
+    newnode->prev=temp;
+}
+void deletefrompos(struct Node** head, int x){
+    if(*head==NULL) return;
+    struct Node*temp=*head;
+    for(int i=1;i<x && temp!=NULL ;i++){
+        temp=temp->next;
+    }
+    if(temp==NULL) return;
+    if(temp==*head){
+        *head=temp->next;
+    }
+    if(temp->prev!=NULL){
+        temp->prev->next=temp->next;
+    }
+    if(temp->next!=NULL){
+        temp->next->prev=temp->prev;
+    }
+    free(temp);
+}
+void display(struct Node* head){
+    printf("Data present in the list:\n");
+    struct Node*temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+}
+int getnode(struct Node*head,int x){
+    struct Node*temp=head;
+    for(int i=1;i<x && temp!=NULL;i++){
+        temp=temp->next;
+    }
+    if(temp==NULL) return -1;
+    return temp->data;
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    struct Node* head=NULL;
+    for(int i=0;i<n;i++){
+        int y;
+        scanf("%d",&y);
+        insertnode(&head,y);
+    }
+    int x;
+    scanf("%d",&x);
+    int z=getnode(head,x);
+    if(z!=-1){
+        printf("Node at position %d with value %d deleted successfully.\n",x,z);
+        deletefrompos(&head,x);
+    }
+    else printf("Position %d not found in the list.\n",x);
+    display(head);
+}
+
+________________________________________________________________________________________________________________________
+
+Q5. Insertion at the End: Insert a node with a given integer data at the end of the doubly linked list.
+Insertion at a given Position: Insert a node with a given integer data at a specified position within the doubly linked list.
+Display the List: Display the elements of the doubly linked list.
+
+The first line of input consists of an integer n, representing the number of elements to be initially inserted into the doubly linked list.
+
+The second line consists of n space-separated integers, denoting the elements to be inserted at the end.
+
+The third line consists of integer m, representing the new element to be inserted.
+
+The fourth line consists of an integer p, representing the position at which the new element should be inserted (1-based indexing).
+
+Input 1 :
+5
+10 25 34 48 57
+35
+4
+Output 1 :
+10 25 34 35 48 57 
+Input 2 :
+7
+1 4 5 2 3 6 8
+45
+9
+Output 2 :
+Invalid position
+1 4 5 2 3 6 8 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+void insertAtEnd(struct Node** head, int val) {
+    struct Node* newnode = (struct Node*)malloc(sizeof(struct Node));
+    newnode->data = val;
+    newnode->next = NULL;
+    newnode->prev = NULL;
+
+    if (*head == NULL) {
+        *head = newnode;
+        return;
+    }
+
+    struct Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newnode;
+    newnode->prev = temp;
+}
+
+int insertAtPosition(struct Node** head, int val, int pos) {
+    
+    struct Node* newnode = (struct Node*)malloc(sizeof(struct Node));
+    newnode->data = val;
+    newnode->next = NULL;
+    newnode->prev = NULL;
+
+    if (pos == 1) { 
+        newnode->next = *head;
+        if (*head != NULL)
+            (*head)->prev = newnode;
+        *head = newnode;
+        return 1;
+    }
+
+    struct Node* temp = *head;
+    for (int i = 1; temp != NULL && i < pos - 1; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) return 0; 
+
+    newnode->next = temp->next;
+    newnode->prev = temp;
+    if (temp->next != NULL)
+        temp->next->prev = newnode;
+    temp->next = newnode;
+
+    return 1;
+}
+
+void display(struct Node* head) {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    struct Node* head = NULL;
+
+    for (int i = 0; i < n; i++) {
+        int val;
+        scanf("%d", &val);
+        insertAtEnd(&head, val);
+    }
+
+    int newVal, pos;
+    scanf("%d", &newVal);
+    scanf("%d", &pos);
+
+    int success = insertAtPosition(&head, newVal, pos);
+    if (!success) {
+        printf("Invalid position\n");
+    }
+
+    display(head);
+
+    return 0;
+}
+
+________________________________________________________________________________________________________________________
+
+Q6.  check if a doubly linked list is a palindrome. 
+
+Input 1 :
+5
+1 2 3 2 1
+Output 1 :
+1 2 3 2 1 
+1 2 3 2 1 
+The doubly linked list is a palindrome
+Input 2 :
+5
+1 2 3 4 5
+Output 2 :
+1 2 3 4 5 
+5 4 3 2 1 
+The doubly linked list is not a palindrome
+Input 3 :
+6
+-1 -2 -3 -3 -2 -1
+Output 3 :
+-1 -2 -3 -3 -2 -1 
+-1 -2 -3 -3 -2 -1 
+The doubly linked list is a palindrome
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+void insertAtEnd(struct Node** head, int val) {
+    struct Node* newnode = (struct Node*)malloc(sizeof(struct Node));
+    newnode->data = val;
+    newnode->next = NULL;
+    newnode->prev = NULL;
+
+    if (*head == NULL) {
+        *head = newnode;
+        return;
+    }
+
+    struct Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newnode;
+    newnode->prev = temp;
+}
+
+void printForward(struct Node* head) {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+void printBackward(struct Node* head) {
+    if (head == NULL) return;
+
+    struct Node* temp = head;
+    while (temp->next != NULL) {
+        temp = temp->next; 
+    }
+
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->prev;
+    }
+    printf("\n");
+}
+
+int isPalindrome(struct Node* head) {
+    if (head == NULL) return 1;
+
+    struct Node* left = head;
+    struct Node* right = head;
+
+    while (right->next != NULL) {
+        right = right->next;
+    }
+
+    while (left != NULL && right != NULL && left != right && right->next != left) {
+        if (left->data != right->data) return 0;
+        left = left->next;
+        right = right->prev;
+    }
+
+    return 1;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    struct Node* head = NULL;
+    for (int i = 0; i < n; i++) {
+        int val;
+        scanf("%d", &val);
+        insertAtEnd(&head, val);
+    }
+    printForward(head);
+    printBackward(head);
+    if (isPalindrome(head)) {
+        printf("The doubly linked list is a palindrome\n");
+    } else {
+        printf("The doubly linked list is not a palindrome\n");
+    }
+    return 0;
+}
+

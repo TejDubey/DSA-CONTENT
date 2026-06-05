@@ -1,0 +1,149 @@
+#include <stdio.h>
+#define MAX_SIZE 5
+int queue[MAX_SIZE];
+int rear=-1;
+int front=-1;
+int isfull(){
+    return (rear+1)%MAX_SIZE==front;
+}
+int isempty(){
+    return (front==-1);
+}
+void enqueue(int x){
+    if(isfull()){
+        printf("Queue overflow\n");
+        return ;
+    }
+    if(isempty()) front=0;
+    if(x%2==0) x*=2;
+    rear=(rear+1)%MAX_SIZE;
+    queue[rear]=x;
+}
+void dequeue(){
+    if(isempty()){
+        printf("Queue underflow\n");
+        return;
+    }
+    printf("Element deleted from queue is : %d\n",queue[front]);
+    if(front==rear) front=rear=-1;
+    else front=(front+1)%MAX_SIZE;
+}
+void display(){
+    if(!isempty()){
+        int i=front;
+        while(1){
+            printf("%d ",queue[i]);
+            if(i==rear) break;
+            else i=(i+1)%MAX_SIZE;
+        }
+    }
+    else{
+        printf("Queue is empty\n");
+        return;
+    }
+    printf("\n");
+}
+
+int main(){
+    int f=1;
+    while(f){
+        int n;
+        scanf("%d",&n);
+        switch(n){
+            case 1:
+            int x;
+            scanf("%d",&x);
+            enqueue(x);
+            break;
+            case 2:
+            dequeue();
+            break;
+            case 3:
+            display();
+            break;
+            case 4:
+            f=0;
+            printf("Exit\n");
+            break;
+            default:
+            printf("Incorrect!\n");
+            break;
+        }
+    }
+}
+
+
+Q. Normal Queue Implementation:
+
+
+#include <stdio.h>
+#define MAX_SIZE 10
+int queue[10];
+int front=0;
+int rear=-1;
+void enqueue(int x,int n){
+    if(rear<n-1){
+        if(x%2==0){
+            queue[++rear]=x;
+        }
+        else{
+            printf("Only even numbers can be enqueued!\n");
+        }
+    }
+    else{
+        printf("Queue overflow\n");
+    }
+}
+void dequeue(){
+    if(front<=rear){
+        if(queue[front]>queue[rear]){
+            printf("Element dequeued: %d\n",queue[front]);
+            front++;
+        }
+        else{
+            printf("Element dequeued: %d\n",queue[rear]);
+            rear--;
+        }
+    }
+    else{
+        printf("Queue Underflow\n");
+    }
+}
+void display(){
+    if(front<=rear){
+        printf("Queue elements: ");
+        for(int i=front;i<=rear;i++){
+            printf("%d ",queue[i]);
+        }
+        printf("\n");
+    }
+    else{
+        printf("Queue is empty!\n");
+    }
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    int n1;
+    while(scanf("%d",&n1)!=-1){
+        switch(n1){
+            case 1:
+            int x;
+            scanf("%d",&x);
+            enqueue(x,n);
+            break;
+            case 2:
+            dequeue();
+            break;
+            case 3:
+            display();
+            break;
+            case 4:
+            printf("Exit");
+            break;
+            default:
+            printf("Invalid choice\n");
+            break;
+        }
+    }
+}

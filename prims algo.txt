@@ -1,0 +1,1358 @@
+prims algo 
+
+RB
+
+1. Arjun is managing a road network project that connects several cities. Each road between two cities has a construction cost, and Arjun wants to minimize the overall cost while ensuring that all cities are connected. To achieve this, he decides to use Kruskal’s algorithm to construct the Minimum Spanning Tree (MST).
+
+
+
+Help him to implement the task.
+
+Input format :
+The first line of input consists of Integer V, representing the number of vertices.
+
+The second line of input consists of Integer E, representing the number of edges.
+
+The next E lines each consist of three integers: src dest weight, representing the two vertices connected by an edge and its associated cost.
+
+Output format :
+The first line of output prints: "Following are the edges in the constructed MST"
+
+The next V-1 lines print: src -- dest == weight
+
+The last line of output prints: "Minimum Cost Spanning Tree: minimumCost"
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+The given test cases fall under the following constraints:
+
+1 ≤ V ≤ 1000
+
+1 ≤ E ≤ 10⁵
+
+1 ≤ weight ≤ 10⁶
+
+The graph is connected, undirected, and weighted.
+
+Sample test cases :
+Input 1 :
+4
+5
+0 1 10
+0 2 1
+0 3 4
+1 3 14
+2 3 3
+Output 1 :
+Following are the edges in the constructed MST
+0 -- 2 == 1
+2 -- 3 == 3
+0 -- 1 == 10
+Minimum Cost Spanning Tree: 14
+Input 2 :
+4
+5
+0 1 10
+0 2 1
+0 3 4
+1 3 8
+2 3 3
+Output 2 :
+Following are the edges in the constructed MST
+0 -- 2 == 1
+2 -- 3 == 3
+1 -- 3 == 8
+Minimum Cost Spanning Tree: 12
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int u, v;
+    int w;
+} Edge;
+
+typedef struct {
+    int parent;
+    int rank;
+} DSU;
+
+int cmpEdges(const void *a, const void *b) {
+    const Edge *e1 = (const Edge *)a;
+    const Edge *e2 = (const Edge *)b;
+    if (e1->w != e2->w) return (e1->w < e2->w) ? -1 : 1;
+    if (e1->u != e2->u) return (e1->u < e2->u) ? -1 : 1;
+    return (e1->v < e2->v) ? -1 : (e1->v > e2->v);
+}
+
+int findSet(DSU dsu[], int x) {
+    if (dsu[x].parent != x)
+        dsu[x].parent = findSet(dsu, dsu[x].parent);
+    return dsu[x].parent;
+}
+
+void unionSet(DSU dsu[], int a, int b) {
+    a = findSet(dsu, a);
+    b = findSet(dsu, b);
+    if (a == b) return;
+    if (dsu[a].rank < dsu[b].rank) {
+        dsu[a].parent = b;
+    } else if (dsu[a].rank > dsu[b].rank) {
+        dsu[b].parent = a;
+    } else {
+        dsu[b].parent = a;
+        dsu[a].rank++;
+    }
+}
+
+int main() {
+    int V, E;
+    if (scanf("%d", &V) != 1) return 0;
+    if (scanf("%d", &E) != 1) return 0;
+
+    Edge *edges = (Edge *)malloc(sizeof(Edge) * E);
+    for (int i = 0; i < E; i++) {
+        scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].w);
+    }
+
+    qsort(edges, E, sizeof(Edge), cmpEdges);
+
+    DSU *dsu = (DSU *)malloc(sizeof(DSU) * V);
+    for (int i = 0; i < V; i++) {
+        dsu[i].parent = i;
+        dsu[i].rank = 0;
+    }
+
+    Edge *mst = (Edge *)malloc(sizeof(Edge) * (V - 1));
+    long long minCost = 0;
+    int cnt = 0;
+
+    for (int i = 0; i < E && cnt < V - 1; i++) {
+        int a = findSet(dsu, edges[i].u);
+        int b = findSet(dsu, edges[i].v);
+        if (a != b) {
+            unionSet(dsu, a, b);
+            mst[cnt++] = edges[i];
+            minCost += edges[i].w;
+        }
+    }
+
+    printf("Following are the edges in the constructed MST\n");
+    for (int i = 0; i < cnt; i++) {
+        printf("%d -- %d == %d\n", mst[i].u, mst[i].v, mst[i].w);
+    }
+    printf("Minimum Cost Spanning Tree: %lld", minCost);
+
+    free(edges);
+    free(dsu);
+    free(mst);
+    return 0;
+}
+
+
+2. 
+
+Joe is managing a transportation network that connects several cities. He wants to find the minimum spanning tree (MST) of this network, which will help optimize the overall cost of transportation between cities. Joe needs your help to implement a Kruskal algorithm to find the MST.
+
+
+
+Write a program that takes input representing the transportation network between cities and outputs the edges forming the MST.
+
+Input format :
+The first line contains an integer N representing the number of cities in the network.
+
+The next N lines contain N space-separated integers each,cost[i][j] representing the cost of transportation between cities. If there's no direct connection between two cities, the cost is represented as 0. If there's a connection, but cost is unknown, it's represented as 9999.
+
+Output format :
+The output displays the edges forming the minimum spanning tree.
+
+Each edge should be represented as "CityA -> CityB" where CityA and CityB are the indices of the cities (1-indexed) forming the edge.
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In this scenario, the given test cases will fall under the following constraints:
+
+2 ≤ N ≤ 20
+
+-50 ≤ cost[i][j] ≤ 50
+
+cost[i][i] = 0
+
+Sample test cases :
+Input 1 :
+3
+0 10 20
+10 0 15
+20 15 0
+Output 1 :
+1 -> 2
+2 -> 3
+Input 2 :
+4
+0 10 20 30
+10 0 15 25
+20 15 0 35
+30 25 35 0
+Output 2 :
+1 -> 2
+2 -> 3
+2 -> 4
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int u, v;
+    int w;
+} Edge;
+
+int cmp(const void *a, const void *b) {
+    return ((Edge*)a)->w - ((Edge*)b)->w;
+}
+
+int find(int parent[], int x) {
+    if (parent[x] != x)
+        parent[x] = find(parent, parent[x]);
+    return parent[x];
+}
+
+void unite(int parent[], int rank[], int a, int b) {
+    a = find(parent, a);
+    b = find(parent, b);
+    if (a == b) return;
+
+    if (rank[a] < rank[b]) parent[a] = b;
+    else if (rank[a] > rank[b]) parent[b] = a;
+    else {
+        parent[b] = a;
+        rank[a]++;
+    }
+}
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    int cost[25][25];
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            scanf("%d", &cost[i][j]);
+
+    Edge edges[400];
+    int eCount = 0;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            if (cost[i][j] != 0 && cost[i][j] != 9999) {
+                edges[eCount].u = i;
+                edges[eCount].v = j;
+                edges[eCount].w = cost[i][j];
+                eCount++;
+            }
+        }
+    }
+
+    qsort(edges, eCount, sizeof(Edge), cmp);
+
+    int parent[25], rank[25] = {0};
+    for (int i = 0; i < N; i++) parent[i] = i;
+
+    int chosen = 0;
+    for (int i = 0; i < eCount && chosen < N - 1; i++) {
+        int u = edges[i].u;
+        int v = edges[i].v;
+
+        if (find(parent, u) != find(parent, v)) {
+            unite(parent, rank, u, v);
+            printf("%d -> %d\n", u + 1, v + 1);
+            chosen++;
+        }
+    }
+
+    return 0;
+}
+
+3. Rahul is designing an electricity distribution system between several towns. The system is represented as a graph where each town is a vertex, and the cost of laying a power line between two towns is the edge weight. To minimize the total cost of connecting all towns, Rahul decides to use Kruskal’s Algorithm to build a Minimum Spanning Tree (MST).
+
+
+
+Help him to implement the task.
+
+Input format :
+The first line of input consists of Integer n, representing the number of towns (vertices).
+
+The next n lines each consist of n space-separated Integers cost[i][j], representing the cost of connecting town i with town j.
+
+Output format :
+For each edge selected in the MST, print a line as:
+
+"a -> b"
+
+Where:
+
+a = one endpoint of the edge
+
+b = the other endpoint of the edge
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In this scenario, the given test cases will fall under the following constraints:
+
+1 ≤ n ≤ 20
+
+0 ≤ cost[i][j] ≤ 1000
+
+cost[i][i] = 0
+
+Graph is connected and undirected
+
+Sample test cases :
+Input 1 :
+3
+0 10 20
+10 0 15
+20 15 0
+Output 1 :
+1 -> 2
+2 -> 3
+Input 2 :
+4
+0 10 20 30
+10 0 15 25
+20 15 0 35
+30 25 35 0
+Output 2 :
+1 -> 2
+2 -> 3
+2 -> 4
+
+You are given several cities in a country, and the costs of constructing fiber optic cables between pairs of cities. Your task is to determine the minimum cost required to connect all the cities with these cables. Each fiber optic cable has a specified cost, along with the cities it connects.
+
+
+
+Write a program that takes the number of cities, the number of available cable segments, and the details of each cable segment as input. Kruskal's algorithm is used to calculate the minimum cost needed to lay down the fiber optic cables that connect all the cities.
+
+
+
+Example
+
+
+
+Input: 
+
+3
+
+3
+
+0 1 4
+
+1 2 5
+
+0 2 3
+
+
+
+Output: 
+
+7
+
+
+
+Explanation:
+
+The input describes 3 cities and 3 fiber optic cable segments with their respective costs:
+
+
+
+Cable segment 1: connects city 0 to city 1, with a cost of 4.
+
+Cable segment 2: connects city 1 to city 2, with a cost of 5.
+
+Cable segment 3: connects city 0 to city 2, with a cost of 3.
+
+
+
+Kruskal's algorithm identifies the minimum cost to lay down the cables connecting all cities. In this case, the minimum spanning tree includes cable segment 3 (0-2 with a cost of 3) and cable segment 1 (0-1 with a cost of 4), resulting in a total cost of 3 + 4 = 7.
+
+Input format :
+The first line of input consists of an integer N, representing the number of cities.
+
+The second line consists of an integer M, representing the number of available fiber optic cable segments.
+
+The next M lines each contain three space-separated integers: the source city (0-based index), the destination city (0-based index), and the cost (weight) of laying the cable between them.
+
+Output format :
+If it is possible to connect all cities, print the minimum cost required to lay the fiber optic cables.
+
+If it is not possible to connect all the cities, print: "It is not possible to connect all cities."
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+1 ≤ N, M ≤ 10
+
+Sample test cases :
+Input 1 :
+3
+3
+0 1 4
+1 2 5
+0 2 3
+Output 1 :
+7
+Input 2 :
+6
+8
+0 1 1
+1 2 2
+2 3 3
+3 4 4
+4 0 5
+1 4 6
+1 3 7
+2 4 8
+Output 2 :
+It is not possible to connect all cities.
+
+
+4. Write a program to find a minimum spanning tree from the given weighted and undirected graph. Use Prim's algorithm to solve this.
+
+
+
+Example
+
+
+
+Input:
+
+5
+
+0 2 0 6 0
+
+2 0 3 8 5
+
+0 3 0 0 7
+
+6 8 0 0 9
+
+0 5 7 9 0
+
+
+
+Output:
+
+0 1 2
+
+1 2 3
+
+0 3 6
+
+1 4 5
+
+
+
+Explanation:
+
+Visit all the nodes with the shortest path. 
+
+The shortest path from 0 - 1 is 2, 1- 2 is 3, the next shortest path is 0- 3 is 6 and 1-4 is 5. Now all the nodes are visited.
+
+Input format :
+The first line of input consists of an integer V, representing the number of vertices.
+
+The next V*V matrix represents the adjacency matrix.
+
+Output format :
+The output prints the starting node, ending node, and edge weight of the minimum spanning tree.
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+1 ≤ V ≤ 10
+
+Sample test cases :
+Input 1 :
+4
+0 2 3 0
+2 0 1 2
+3 1 0 4
+0 2 4 0
+Output 1 :
+0 1 2
+1 2 1
+1 3 2
+Input 2 :
+5
+0 2 0 6 0
+2 0 3 8 5
+0 3 0 0 7
+6 8 0 0 9
+0 5 7 9 0
+Output 2 :
+0 1 2
+1 2 3
+0 3 6
+1 4 5
+
+// You are using GCC
+#include <stdio.h>
+#include <limits.h>
+
+int main() {
+    int V;
+    scanf("%d", &V);
+
+    int graph[15][15];
+
+    for (int i = 0; i < V; i++) {
+        for (int j = 0; j < V; j++) {
+            scanf("%d", &graph[i][j]);
+            if (i != j && graph[i][j] == 0)
+                graph[i][j] = INT_MAX;   // no edge
+        }
+    }
+
+    int parent[15], key[15], mstSet[15];
+
+    for (int i = 0; i < V; i++) {
+        key[i] = INT_MAX;
+        mstSet[i] = 0;
+    }
+
+    key[0] = 0;
+    parent[0] = -1;
+
+    for (int count = 0; count < V - 1; count++) {
+        int min = INT_MAX, u = -1;
+
+        for (int v = 0; v < V; v++) {
+            if (!mstSet[v] && key[v] < min) {
+                min = key[v];
+                u = v;
+            }
+        }
+
+        mstSet[u] = 1;
+
+        for (int v = 0; v < V; v++) {
+            if (!mstSet[v] && graph[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+
+    for (int i = 1; i < V; i++) {
+        printf("%d %d %d\n", parent[i], i, graph[parent[i]][i]);
+    }
+
+    return 0;
+}
+
+
+8. Imagine you are working as a software engineer at a company that provides urban planners with solutions to optimize the installation of fiber optic cables across cities. Given the number of buildings, the roads connecting them, and the cost of installing fiber optic cables between buildings.
+
+
+
+Your task is to create a program that employs Kruskal's algorithm to determine the minimum spanning tree (MST) for connecting the city's buildings at the lowest possible cost.
+
+Input format :
+The first line contains an integer, N, representing the total number of buildings.
+
+The second line contains an integer, R, representing the number of roads connecting the buildings.
+
+Each of the next R lines contains three space-separated integers: two integers representing the two buildings and a third integer representing the cost of installing fiber optic cables between these two buildings.
+
+Output format :
+The output begins with the line "Minimum Spanning Tree:", followed by a list of edges in the MST.
+
+For each edge, output the buildings being connected and the cost of installation, formatted as: "Building X - Building Y: Z", where
+
+X and Y represent the buildings, and Z is the installation cost.
+
+The final line should print "Total Cost for Installation: " followed by the total cost for laying the cables across the city.
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In this scenario, the test cases fall under the following constraints:
+
+0 ≤ N ≤ 10
+
+1 ≤ R ≤ 45
+
+1 ≤ Cost ≤ 15
+
+Sample test cases :
+Input 1 :
+5
+7
+0 1 5
+0 2 10
+0 3 8
+1 2 3
+2 3 6
+3 4 12
+2 4 7
+Output 1 :
+Minimum Spanning Tree:
+Building 1 - Building 2: 3
+Building 0 - Building 1: 5
+Building 2 - Building 3: 6
+Building 2 - Building 4: 7
+Total Cost for Installation: 21
+Input 2 :
+4
+5
+0 1 4
+0 2 5
+1 2 2
+1 3 3
+2 3 6
+Output 2 :
+Minimum Spanning Tree:
+Building 1 - Building 2: 2
+Building 1 - Building 3: 3
+Building 0 - Building 1: 4
+Total Cost for Installation: 9
+
+// You are using GCC
+#include <stdio.h>
+
+typedef struct {
+    int u, v, w;
+} Edge;
+
+int find(int parent[], int x) {
+    if (parent[x] != x)
+        parent[x] = find(parent, parent[x]);
+    return parent[x];
+}
+
+void unite(int parent[], int rank[], int a, int b) {
+    a = find(parent, a);
+    b = find(parent, b);
+    if (a == b) return;
+    if (rank[a] < rank[b]) parent[a] = b;
+    else if (rank[a] > rank[b]) parent[b] = a;
+    else { parent[b] = a; rank[a]++; }
+}
+
+int main() {
+    int N, R;
+    scanf("%d", &N);
+    scanf("%d", &R);
+
+    Edge edges[60];
+    for (int i = 0; i < R; i++) {
+        scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].w);
+    }
+
+    // Sort edges by weight (ascending)
+    for (int i = 0; i < R - 1; i++) {
+        for (int j = i + 1; j < R; j++) {
+            if (edges[i].w > edges[j].w) {
+                Edge temp = edges[i];
+                edges[i] = edges[j];
+                edges[j] = temp;
+            }
+        }
+    }
+
+    int parent[20], rank[20] = {0};
+    for (int i = 0; i < N; i++) parent[i] = i;
+
+    printf("Minimum Spanning Tree:\n");
+
+    int total = 0, used = 0;
+
+    for (int i = 0; i < R && used < N - 1; i++) {
+        int a = find(parent, edges[i].u);
+        int b = find(parent, edges[i].v);
+
+        if (a != b) {
+            unite(parent, rank, a, b);
+            printf("Building %d - Building %d: %d\n",
+                   edges[i].u, edges[i].v, edges[i].w);
+            total += edges[i].w;
+            used++;
+        }
+    }
+
+    printf("Total Cost for Installation: %d", total);
+
+    return 0;
+}
+
+CY
+
+
+Given a weighted undirected connected graph with N vertices numbered from 0 to N - 1, the task is to find the minimum spanning tree (MST) of the graph using Prim's Algorithm.
+
+
+
+Example
+
+
+
+Input: 
+
+5
+
+0 2 0 6 0
+
+2 0 3 8 5
+
+0 3 0 0 7
+
+6 8 0 0 9
+
+0 5 7 9 0
+
+Output: 
+
+
+
+Explanation:
+
+This means that the MST consists of the following edges with their respective weights:
+
+The edge between vertex 0 and vertex 1 with weight 2
+
+The edge between vertex 1 and vertex 2 with weight 3
+
+The edge between vertex 0 and vertex 3 with weight 6
+
+The edge between vertex 1 and vertex 4 with weight 5
+
+
+
+These edges form a connected spanning tree with the minimum total weight among all possible spanning trees in the graph.
+
+Input format :
+The first line of input consists of an integer N, representing the number of vertices in the graph.
+
+The following N lines consist of an adjacency matrix representing the graph, where graph[i][j] represents the weight of the edge between vertices i and j.
+
+Output format :
+The output consists of the edges included in the minimum spanning tree (MST) of the given graph, along with their weights.
+
+Use the following formatting specifications to print the table: "Edge \tWeight\n", "%d - %d\t%d\n".
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+1 ≤ N ≤ 100
+
+The adjacency matrix is a square matrix of size NxN.
+
+The weight of each edge is a non-negative integer.
+
+Sample test cases :
+Input 1 :
+5
+0 2 0 6 0
+2 0 3 8 5
+0 3 0 0 7
+6 8 0 0 9
+0 5 7 9 0
+Output 1 :
+Edge 	Weight
+0 - 1	2
+1 - 2	3
+0 - 3	6
+1 - 4	5
+Input 2 :
+4
+0 1 1 1
+1 0 1 0
+1 1 0 1
+1 0 1 0
+Output 2 :
+Edge 	Weight
+0 - 1	1
+0 - 2	1
+0 - 3	1
+Note :
+The program will be evaluated only after the “Submit Code” is clicked.
+Extra spaces and new line characters in the program output will result in the failure of the test case.
+
+// You are using GCC
+// You are using GCC
+#include <stdio.h>
+#include <limits.h>
+
+int main() {
+    int N;
+    scanf("%d", &N);
+
+    int graph[105][105];
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    int parent[105], key[105], mstSet[105];
+
+    for (int i = 0; i < N; i++) {
+        key[i] = INT_MAX;
+        mstSet[i] = 0;
+    }
+
+    key[0] = 0;
+    parent[0] = -1;
+
+    for (int count = 0; count < N - 1; count++) {
+        int min = INT_MAX, u = -1;
+
+        for (int v = 0; v < N; v++) {
+            if (!mstSet[v] && key[v] < min) {
+                min = key[v];
+                u = v;
+            }
+        }
+
+        mstSet[u] = 1;
+
+        for (int v = 0; v < N; v++) {
+            if (graph[u][v] != 0 && !mstSet[v] && graph[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+
+    printf("Edge \tWeight\n");
+
+    for (int i = 1; i < N; i++) {
+        printf("%d - %d\t%d\n", parent[i], i, graph[parent[i]][i]);
+    }
+
+    return 0;
+}
+
+
+You are given a set of cities and the cost of connecting each pair of cities. Your task is to find the minimum cost to connect all the cities using Prim's Algorithm and the minimum spanning tree.
+
+
+
+Example
+
+
+
+Input: 
+
+5
+
+6
+
+0 1 4
+
+0 2 3
+
+1 2 2
+
+1 3 1
+
+2 3 4
+
+3 4 2
+
+Output: 
+
+8
+
+Explanation:
+
+The minimum spanning tree for this input is as follows:
+
+City 0 is connected to City 2 at a cost of 3.
+
+City 2 is connected to City 1 at a cost of 2.
+
+City 1 is connected to City 3 at a cost of 1.
+
+City 3 is connected to City 4 at a cost of 2.
+
+
+
+The total cost of these connections is 3 + 2 + 1 +2 = 8, which is printed as the output.
+
+Input format :
+The first line of input contains an integer numCities, representing the number of cities (vertices)
+
+The second line contains an integer numConnections, representing the number of connections (edges) between the cities.
+
+The next numConnections lines contain three space-separated integers: source, destination, and cost, representing a connection between a city's source and destination with the given cost.
+
+Output format :
+The output prints the minimum cost required to connect all the cities.
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+1 ≤ numCities ≤ 105
+
+Sample test cases :
+Input 1 :
+5
+6
+0 1 4
+0 2 3
+1 2 2
+1 3 1
+2 3 4
+3 4 2
+Output 1 :
+8
+Input 2 :
+4
+5
+0 1 2
+0 2 3
+1 2 1
+1 3 4
+2 3 5
+Output 2 :
+7
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+typedef struct Edge {
+    int to;
+    int cost;
+    struct Edge* next;
+} Edge;
+
+typedef struct {
+    int node;
+    int cost;
+} HeapNode;
+
+typedef struct {
+    HeapNode* arr;
+    int size;
+} MinHeap;
+
+void push(MinHeap* h, int node, int cost) {
+    h->arr[++h->size].node = node;
+    h->arr[h->size].cost = cost;
+    int i = h->size;
+
+    while (i > 1 && h->arr[i].cost < h->arr[i/2].cost) {
+        HeapNode temp = h->arr[i];
+        h->arr[i] = h->arr[i/2];
+        h->arr[i/2] = temp;
+        i /= 2;
+    }
+}
+
+HeapNode pop(MinHeap* h) {
+    HeapNode top = h->arr[1];
+    h->arr[1] = h->arr[h->size--];
+
+    int i = 1;
+    while (1) {
+        int left = i * 2;
+        int right = left + 1;
+        int smallest = i;
+
+        if (left <= h->size && h->arr[left].cost < h->arr[smallest].cost)
+            smallest = left;
+        if (right <= h->size && h->arr[right].cost < h->arr[smallest].cost)
+            smallest = right;
+
+        if (smallest != i) {
+            HeapNode temp = h->arr[i];
+            h->arr[i] = h->arr[smallest];
+            h->arr[smallest] = temp;
+            i = smallest;
+        } else break;
+    }
+
+    return top;
+}
+
+int main() {
+    int numCities, numConnections;
+    scanf("%d", &numCities);
+    scanf("%d", &numConnections);
+
+    Edge** graph = (Edge**)calloc(numCities, sizeof(Edge*));
+
+    for (int i = 0; i < numConnections; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+
+        Edge* e1 = (Edge*)malloc(sizeof(Edge));
+        e1->to = v; e1->cost = w; e1->next = graph[u];
+        graph[u] = e1;
+
+        Edge* e2 = (Edge*)malloc(sizeof(Edge));
+        e2->to = u; e2->cost = w; e2->next = graph[v];
+        graph[v] = e2;
+    }
+
+    int* visited = (int*)calloc(numCities, sizeof(int));
+    MinHeap heap;
+    heap.arr = (HeapNode*)malloc((numConnections + 5) * sizeof(HeapNode));
+    heap.size = 0;
+
+    int totalCost = 0;
+    push(&heap, 0, 0);
+
+    while (heap.size > 0) {
+        HeapNode top = pop(&heap);
+        int node = top.node;
+        int cost = top.cost;
+
+        if (visited[node]) continue;
+        visited[node] = 1;
+        totalCost += cost;
+
+        Edge* temp = graph[node];
+        while (temp) {
+            if (!visited[temp->to]) {
+                push(&heap, temp->to, temp->cost);
+            }
+            temp = temp->next;
+        }
+    }
+
+    printf("%d", totalCost);
+    return 0;
+}
+
+
+
+Q. You are working on a project to help urban planners optimize the installation of a fiber optic network between various buildings. Given the number of buildings and the costs associated with laying fiber optic cables between each pair.
+
+
+
+Your task is to develop a program that implements Prim's algorithm to determine the minimum cost to connect all buildings.
+
+Input format :
+The first line contains an integer N, representing the number of buildings.
+
+The next N × N matrix follows, where each element represents the cost of laying a fiber optic cable between two buildings. A value of 0 indicates no direct connection.
+
+Output format :
+The output prints the "Spanning Tree Matrix:" where each element shows the connections between buildings in the minimum spanning tree.
+
+Then, print "Total Cost: " followed by the minimum total cost required to connect all the buildings.
+
+
+
+Refer to the sample output for formatting specifications.
+
+Code constraints :
+1 ≤ N ≤ 10
+
+Sample test cases :
+Input 1 :
+6
+0 3 1 6 0 0
+3 0 5 0 3 0
+1 5 0 5 6 4
+6 0 5 0 0 2
+0 3 6 0 0 6
+0 0 4 2 6 0
+Output 1 :
+Spanning Tree Matrix:
+0 3 1 0 0 0 
+3 0 0 0 3 0 
+1 0 0 0 0 4 
+0 0 0 0 0 2 
+0 3 0 0 0 0 
+0 0 4 2 0 0 
+Total Cost: 13
+Input 2 :
+4
+0 2 3 3
+2 0 0 2
+3 0 0 4
+3 2 4 0
+Output 2 :
+Spanning Tree Matrix:
+0 2 3 0 
+2 0 0 2 
+3 0 0 0 
+0 2 0 0 
+Total Cost: 7
+
+#include <stdio.h>
+#include <limits.h>
+
+int minKey(int key[], int mstSet[], int n) {
+    int min = INT_MAX, index = -1;
+    for (int i = 0; i < n; i++) {
+        if (mstSet[i] == 0 && key[i] < min) {
+            min = key[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int cost[n][n];
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);
+        }
+    }
+
+    int parent[n];
+    int key[n];
+    int mstSet[n];
+
+    for (int i = 0; i < n; i++) {
+        key[i] = INT_MAX;
+        mstSet[i] = 0;
+    }
+
+    key[0] = 0;
+    parent[0] = -1;
+
+    for (int count = 0; count < n - 1; count++) {
+        int u = minKey(key, mstSet, n);
+        mstSet[u] = 1;
+
+        for (int v = 0; v < n; v++) {
+            if (cost[u][v] != 0 && mstSet[v] == 0 && cost[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = cost[u][v];
+            }
+        }
+    }
+
+    int mstMatrix[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            mstMatrix[i][j] = 0;
+
+    int totalCost = 0;
+
+    for (int i = 1; i < n; i++) {
+        int u = parent[i];
+        int v = i;
+        mstMatrix[u][v] = cost[u][v];
+        mstMatrix[v][u] = cost[u][v];
+        totalCost += cost[u][v];
+    }
+
+    printf("Spanning Tree Matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%d ", mstMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("Total Cost: %d", totalCost);
+
+    return 0;
+}
+
+
+Q. Ramesh is responsible for designing a road network between several towns. Each town is represented as a node, and the cost of building a road between two towns is represented as a weight in the network. Ramesh wants to connect all towns at the minimum possible cost without forming cycles. He decides to use Prim’s Algorithm to find the Minimum Spanning Tree (MST).
+
+Help him to implement the task.
+
+Input format :
+The first line of input consists of Integer V, representing the number of nodes.
+
+The next V lines of input each consist of V space-separated Integer graph[i][j], representing the adjacency matrix of road costs.
+
+Output format :
+The first line of output prints: header_title
+
+The next (V - 1) lines of output each print: parent_node[i] - current_node[i] edge_weight[i]
+
+
+
+Refer to the sample output for the exact format.
+
+Code constraints :
+The given test cases fall under the following constraints:
+
+1 ≤ V ≤ 10
+
+0 ≤ graph[i][j] ≤ 1000
+
+graph[i][i] = 0 for all i
+
+
+
+The graph is connected, undirected, and weighted
+
+Sample test cases :
+Input 1 :
+3
+0 2 3
+2 0 4
+3 4 0
+Output 1 :
+Edge   Weight
+0 - 1    2
+0 - 2    3
+Input 2 :
+5
+0 2 0 6 0
+2 0 3 8 5
+0 3 0 0 7
+6 8 0 0 9
+0 5 7 9 0
+Output 2 :
+Edge   Weight
+0 - 1    2
+1 - 2    3
+0 - 3    6
+1 - 4    5
+
+#include <stdio.h>
+#include <limits.h>
+
+int minKey(int key[], int mstSet[], int V) {
+    int min = INT_MAX, minIndex = -1;
+    for (int v = 0; v < V; v++) {
+        if (mstSet[v] == 0 && key[v] < min) {
+            min = key[v];
+            minIndex = v;
+        }
+    }
+    return minIndex;
+}
+
+int main() {
+    int V;
+    scanf("%d", &V);
+
+    int graph[V][V];
+    for (int i = 0; i < V; i++) {
+        for (int j = 0; j < V; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    int parent[V];
+    int key[V];
+    int mstSet[V];
+
+    for (int i = 0; i < V; i++) {
+        key[i] = INT_MAX;
+        mstSet[i] = 0;
+    }
+
+    key[0] = 0;
+    parent[0] = -1;
+
+    for (int count = 0; count < V - 1; count++) {
+        int u = minKey(key, mstSet, V);
+        mstSet[u] = 1;
+
+        for (int v = 0; v < V; v++) {
+            if (graph[u][v] && mstSet[v] == 0 && graph[u][v] < key[v]) {
+                parent[v] = u;
+                key[v] = graph[u][v];
+            }
+        }
+    }
+
+    printf("Edge   Weight\n");
+
+    for (int i = 1; i < V; i++) {
+        printf("%d - %d    %d\n", parent[i], i, graph[i][parent[i]]);
+    }
+
+    return 0;
+}
+
+
+Q. Sita is planning to connect multiple locations in her city with roads. Each possible road between two locations has a construction distance (in kilometers). To minimize the overall distance, she decides to use Prim’s Algorithm to construct the Minimum Spanning Tree (MST).
+
+
+
+
+
+Help her to implement the task.
+
+Input format :
+The first line of input consists of Integer numLocations, representing the number of locations in the city.
+
+The next numLocations × numLocations lines each consist of Integer graph[i][j], representing the distance between location i and location j.
+
+Output format :
+The first line of output prints: "Location\tDistance"
+
+The next numLocations – 1 lines print: parent[i] -> i graph[i][parent[i]] km
+
+The last line of output prints: "Minimum total distance: totalCost km"
+
+
+
+Refer to the sample output for the formatting specifications.
+
+Code constraints :
+In this scenario, the test cases fall under the following constraints:
+
+1 ≤ numLocations ≤ 10
+
+0 ≤ graph[i][j] ≤ 1000
+
+graph[i][i] = 0 for all i
+
+The graph is connected, undirected, and weighted
+
+Sample test cases :
+Input 1 :
+2
+0 5
+5 0
+Output 1 :
+Location	Distance
+0 -> 1			5 km
+Minimum total distance: 5 km
+Input 2 :
+3
+0 2 3
+2 0 1
+3 1 0
+Output 2 :
+Location	Distance
+0 -> 1			2 km
+1 -> 2			1 km
+Minimum total distance: 3 km
+
+
+same above code
+

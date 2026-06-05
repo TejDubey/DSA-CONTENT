@@ -1,0 +1,505 @@
+## Conversions :
+
+################## Infix to postfix ###################
+
+//infix to postfix
+#include <stdio.h>
+#include <string.h>
+char stack [100];
+int top=-1;
+int priority(char x){
+    if(x=='^') return 3;
+    else if(x=='*'||x=='/') return 2;
+    else if(x=='+'||x=='-') return 1;
+    else return -1;
+}
+void infixtopostfix(char *str){
+    int k=0;
+    char ans[100];
+    int n=strlen(str);
+    int i=0;
+    while(i<n){
+        if(str[i]==' '){ //to handle spaces 
+            i++;
+            continue;
+        }
+        if((str[i]>='A'&&str[i]<='Z')||(str[i]>='a'&&str[i]<='z')||(str[i]>='0'&&str[i]<='9')){
+            ans[k++]=str[i];
+        }
+        else if(str[i]=='('){
+            stack[++top]=str[i];
+        }
+        else if(str[i]==')'){
+            while(top>-1 &&stack[top]!='('){
+                ans[k++]=stack[top--];
+            }
+            top--;
+        }
+        else{
+            if(str[i]=='^'){
+                while(top>-1 && (priority(str[i])<priority(stack[top]))){
+                    ans[k++]=stack[top--];
+                }
+                stack[++top]=str[i];
+            }
+            else{
+                while(top>-1 && (priority(str[i])<=priority(stack[top]))){
+                    ans[k++]=stack[top--];
+                }
+                stack[++top]=str[i];
+            }
+        }
+        i++;
+    }
+    while(top>-1){
+        ans[k++]=stack[top--];
+    }
+    ans[k]='\0';
+    printf("%s",ans);
+}
+int main(){
+    char arr[100];
+    scanf("%[^\n]",arr);
+    infixtopostfix(arr);
+}
+
+
+####################### Infix to prefix #######################
+
+//infix to prefix
+#include <stdio.h>
+#include <string.h>
+char stack [100];
+int top=-1;
+int priority(char x){
+    if(x=='^') return 3;
+    else if(x=='*'||x=='/') return 2;
+    else if(x=='+'||x=='-') return 1;
+    else return -1;
+}
+char* reverse1(char *str){
+    static char ans[100];
+    int n=strlen(str);
+    for(int i=0;i<n;i++){
+        ans[i]=str[n-1-i];
+    }
+    for(int i=0;i<n;i++){
+        if(ans[i]=='(') ans[i]=')';
+        else if(ans[i]==')') ans[i]='(';
+    }
+    ans[n]='\0';
+    return ans;
+}
+char* reverse(char *str){
+    static char ans[100];
+    int n=strlen(str);
+    for(int i=0;i<n;i++){
+        ans[i]=str[n-1-i];
+    }
+    ans[n]='\0';
+    return ans;
+}
+void infixtoprefix(char *str1){
+    int k=0;
+    char ans[100];
+    int n=strlen(str1);
+    int i=0;
+    char *str=reverse1(str1);
+    while(i<n){
+        if(str[i]==' '){ //to handle spaces 
+            i++;
+            continue;
+        }
+        else if((str[i]>='A'&&str[i]<='Z')||(str[i]>='a'&&str[i]<='z')){
+            ans[k++]=str[i];
+        }
+	else if((str[i]>='0'&&str[i]<='9')){
+            while(i<n && isdigit(str[i])){
+                ans[k++]=str[i];
+                i++;
+            }
+            ans[k++]=' ';
+            continue;
+        }
+        else if(str[i]=='('){
+            stack[++top]=str[i];
+        }
+        else if(str[i]==')'){
+            while(top>-1 &&stack[top]!='('){
+                ans[k++]=stack[top--];
+            }
+            top--;
+        }
+        else{
+            if(str[i]=='^'){
+                while(top>-1 && (priority(str[i])<=priority(stack[top]))){
+                    ans[k++]=stack[top--];
+                }
+                stack[++top]=str[i];
+            }
+            else{
+                while(top>-1 && (priority(str[i])<priority(stack[top]))){
+                    ans[k++]=stack[top--];
+                }
+                stack[++top]=str[i];
+            }
+        }
+        i++;
+    }
+    while(top>-1){
+        ans[k++]=stack[top--];
+    }
+    ans[k]='\0';
+    char *ans1=reverse(ans);
+    printf("%s",ans1);
+}
+int main(){
+    char arr[100];
+    scanf("%[^\n]",arr);
+    infixtoprefix(arr);
+}
+
+
+we can use this in place algo to reverse the string with time complexity of o(n) but space complexity of o(1) where as in other algos we use another string array to store answer with space complexity o(n)...........
+
+char* reverse(char *str){
+    int n=strlen(str);
+    for(int i=0,j=n-1;i<j;i++,j--){
+        char temp=str[i];
+        str[i]=str[j];
+        str[j]=temp;
+    }
+    str[n]='\0';
+    return str;
+}
+
+################## Postfix evaluation ##################
+
+//postfix evaluation
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+int stack[100];
+int top=-1;
+void postfixeval(char *str){
+    int n=strlen(str);
+    int i=0;
+    while(i<n){
+        int res;
+        if(str[i]==' '){
+            i++;
+            continue;
+        }
+        if(isdigit(str[i])){
+            int num=0;
+            while(i<n && isdigit(str[i])){
+                num=(num*10)+(str[i]-'0');
+                i++;
+            }
+            stack[++top]=num;
+        }
+        else if(str[i]=='+'||str[i]=='-'||str[i]=='*'||str[i]=='/'){
+            int t1=stack[top--];
+            int t2=stack[top--];
+            if(str[i]=='+') res=t2+t1;
+            else if(str[i]=='-') res=t2-t1;
+            else if(str[i]=='/') res=t2/t1;
+            else if(str[i]=='*') res=t2*t1;
+            stack[++top]=res;
+        }
+        else{
+            printf("-1");
+            return;
+        }
+        i++;
+    }
+    printf("%d",stack[top]);
+}
+int main(){
+    char str[100];
+    scanf("%[^\n]",str);
+    postfixeval(str);
+}
+
+
+#################### Prefix evaluation ###################### //reverse while loop
+
+//prefix evaluation
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+int stack[100];
+int top=-1;
+void prefixeval(char *str){
+    int n=strlen(str);
+    int i=n-1;
+    while(i>=0){
+        if(str[i]==' '){
+            i--;
+            continue;
+        }
+        else if(isdigit(str[i])){
+            int num=0;
+            int place=1;
+            while(i>=0 && isdigit(str[i])){
+                num=num+(str[i]-'0')*place;
+                i--;
+                place*=10;
+            }
+            stack[++top]=num;
+            continue;
+        }
+        else if(str[i]=='+'||str[i]=='-'||str[i]=='*'||str[i]=='/'){
+            int t1=stack[top--];
+            int t2=stack[top--];
+            int res;
+            if(str[i]=='+') res=t1+t2;
+            else if(str[i]=='-') res=t1-t2;
+            else if(str[i]=='*') res=t1*t2;
+            else if(str[i]=='/') res=t1/t2;
+            stack[++top]=res;
+        }
+        i--;
+    }
+    printf("%d",stack[top]);
+}
+int main(){
+    char str[100];
+    scanf("%[^\n]",str);
+    prefixeval(str);
+}
+
+
+
+
+########################################################################################
+
+Q1.Infix to postfix conversion and then its evaluation :
+
+
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+char stack[100];
+int top=-1;
+char posstr[100];
+
+int priority(char x){
+    if(x=='^') return 3;
+    else if(x=='*'||x=='/') return 2;
+    else if(x=='+'||x=='-') return 1;
+    return -1;
+}
+
+void infixtopostfix(char *str){
+    int i=0;
+    top=-1;
+    char ans[100];
+    int k=0;
+    int n=strlen(str);
+    while(i<n){
+        if(str[i]==' '){
+            i++;
+            continue;
+        }
+        else if(isalpha(str[i])){
+            ans[k++]=str[i];
+            ans[k++]=' ';
+        }
+        else if(isdigit(str[i])){
+            while(i<n && isdigit(str[i])){
+                ans[k++]=str[i++];
+            }
+            ans[k++]=' ';
+            continue;
+        }
+        else if(str[i]=='('){
+            stack[++top]=str[i];
+        }
+        else if(str[i]==')'){
+            while(top!=-1 && stack[top]!='('){
+                ans[k++]=stack[top--];
+                ans[k++]=' ';
+            }
+            top--;
+        }
+        else{
+            if(str[i]=='^'){
+                while(top!=-1 && priority(str[i])<priority(stack[top])){
+                    ans[k++]=stack[top--];
+                    ans[k++]=' ';
+                }
+                stack[++top]=str[i];
+            }
+            else{
+                while(top!=-1 && priority(str[i])<=priority(stack[top])){
+                    ans[k++]=stack[top--];
+                    ans[k++]=' ';
+                }
+                stack[++top]=str[i];
+            }
+        }
+        i++;
+    }
+    while(top!=-1){
+        ans[k++]=stack[top--];
+        ans[k++]=' ';
+    }
+    ans[k]='\0';
+    printf("%s\n",ans);
+    strcpy(posstr,ans);
+}
+
+// postfix eval supported for only integer or numbers or digit inputs
+int stack1[100];
+int top1=-1;
+
+void postfixeval(char *str){
+    int i=0;
+    int n=strlen(str);
+    while(i<n){
+        if(str[i]==' '){
+            i++;
+            continue;
+        }
+        else if(isdigit(str[i])){
+            int num=0;
+            while(i<n && isdigit(str[i])){
+                num = num*10 + (str[i]-'0');   
+                i++;
+            }
+            stack1[++top1]=num;
+            continue;
+        }
+        else if(str[i]=='+'||str[i]=='-'||str[i]=='*'||str[i]=='/'||str[i]=='^'){
+            int t1=stack1[top1--];
+            int t2=stack1[top1--];
+            if(str[i]=='+') stack1[++top1]=(t2+t1);
+            else if(str[i]=='-') stack1[++top1]=(t2-t1);
+            else if(str[i]=='*') stack1[++top1]=(t2*t1);
+            else if(str[i]=='/') stack1[++top1]=(t2/t1);
+            else if(str[i]=='^'){
+                int res=1;
+                for(int j=0;j<t1;j++) res*=t2;
+                stack1[++top1]=res;
+            }
+        }
+        i++;
+    }
+    printf("The evaluated expression value is: %d",stack1[top1]);
+}
+
+int main(){
+    char arr[100];
+    scanf("%[^\n]",arr);
+    infixtopostfix(arr);
+    postfixeval(posstr);
+}
+
+
+
+###################### Postfix to infix #######################
+
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char stack[100][100];
+int top=-1;
+void push(char *str){
+    strcpy(stack[++top],str);
+}
+char *pop(){
+    return stack[top--];
+}
+void postfixtoinfix(char *str){
+    int i=0;
+    int n=strlen(str);
+    while(i<n){
+        if(str[i]==' '){
+            i++;
+            continue;
+        }
+        else if(isdigit(str[i])||isalpha(str[i])){
+            char ans[2];
+            ans[0]=str[i];
+            ans[1]='\0';
+            push(ans);
+        }
+        else {
+            char t1[100], t2[100], expr[100];
+            strcpy(t1,pop());
+            strcpy(t2,pop());
+            strcpy(expr,"(");
+            strcat(expr,t2);
+            char ans[2];
+            ans[0]=str[i];
+            ans[1]='\0';
+            strcat(expr,ans);
+            strcat(expr,t1);
+            strcat(expr,")");
+            push(expr);
+        }
+        i++;
+    }
+    printf("%s",stack[top]);
+}
+int main(){
+    char str[100];
+    scanf("%[^\n]",str);
+    postfixtoinfix(str);
+}
+
+
+
+######################## Prefix to infix ###########################
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char stack[100][100];
+int top=-1;
+void push(char *str){
+    strcpy(stack[++top],str);
+}
+char *pop(){
+    return stack[top--];
+}
+void prefixtoinfix(char *str){
+    int n=strlen(str);
+    int i=n-1;
+    while(i>=0){
+        if(str[i]==' '){
+            i--;
+            continue;
+        }
+        else if(isdigit(str[i])||isalpha(str[i])){
+            char ans[2];
+            ans[0]=str[i];
+            ans[1]='\0';
+            push(ans);
+        }
+        else {
+            char t1[100], t2[100], expr[100];
+            strcpy(t1,pop());
+            strcpy(t2,pop());
+            strcpy(expr,"(");
+            strcat(expr,t1);
+            char ans[2];
+            ans[0]=str[i];
+            ans[1]='\0';
+            strcat(expr,ans);
+            strcat(expr,t2);
+            strcat(expr,")");
+            push(expr);
+        }
+        i--;
+    }
+    printf("%s",stack[top]);
+}
+int main(){
+    char str[100];
+    scanf("%[^\n]",str);
+    prefixtoinfix(str);
+}

@@ -1,0 +1,228 @@
+1. BFS
+
+#include <stdio.h>
+#define MAX 100
+
+int queue[MAX];
+int front = -1, rear = -1;
+
+void enqueue(int x) {
+    if (rear == MAX - 1) return;
+    if (front == -1) front = 0;
+    queue[++rear] = x;
+}
+
+int dequeue() {
+    if (front == -1 || front > rear) return -1;
+    return queue[front++];
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    int visited[n];
+    for (int i = 0; i < n; i++) visited[i] = 0;
+
+    int start;
+    scanf("%d", &start);
+
+    enqueue(start);
+    visited[start] = 1;
+
+    while (front != -1 && front <= rear) {
+        int node = dequeue();
+        printf("%d ", node);
+        for (int i = 0; i < n; i++) {
+            if (graph[node][i] == 1 && visited[i] == 0) {
+                enqueue(i);
+                visited[i] = 1;
+            }
+        }
+    }
+    return 0;
+}
+
+
+2. DFS
+
+#include <stdio.h>
+
+void dfs(int node, int n, int graph[n][n], int visited[]) {
+    visited[node] = 1;
+    printf("%d ", node);
+    for (int i = 0; i < n; i++)
+        if (graph[node][i] == 1 && visited[i] == 0)
+            dfs(i, n, graph, visited);
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    int visited[n];
+    for (int i = 0; i < n; i++) visited[i] = 0;
+
+    int start;
+    scanf("%d", &start);
+
+    dfs(start, n, graph, visited);
+    return 0;
+}
+
+
+3. Prims MST(minimum spanning tree)
+
+#include <stdio.h>
+#define INF 999999
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    int selected[n];
+    for (int i = 0; i < n; i++) selected[i] = 0;
+
+    selected[0] = 1;
+    int edges = 0;
+
+    while (edges < n - 1) {
+        int min = INF, u = -1, v = -1;
+
+        for (int i = 0; i < n; i++)
+            if (selected[i])
+                for (int j = 0; j < n; j++)
+                    if (!selected[j] && graph[i][j] < min && graph[i][j] != 0) {
+                        min = graph[i][j];
+                        u = i;
+                        v = j;
+                    }
+
+        printf("%d - %d  %d\n", u, v, min);
+        selected[v] = 1;
+        edges++;
+    }
+
+    return 0;
+}
+
+
+4. kruskals (mst)
+
+#include <stdio.h>
+#define INF 999999
+
+int find(int parent[], int i) {
+    while (parent[i] != i) i = parent[i];
+    return i;
+}
+
+void unite(int parent[], int a, int b) {
+    int x = find(parent, a);
+    int y = find(parent, b);
+    parent[y] = x;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    int parent[n];
+    for (int i = 0; i < n; i++) parent[i] = i;
+
+    int edges = 0;
+
+    while (edges < n - 1) {
+        int min = INF, u = -1, v = -1;
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                if (graph[i][j] < min && graph[i][j] != 0) {
+                    min = graph[i][j];
+                    u = i;
+                    v = j;
+                }
+
+        int pu = find(parent, u);
+        int pv = find(parent, v);
+
+        if (pu != pv) {
+            printf("%d - %d %d\n", u, v, min);
+            unite(parent, pu, pv);
+            edges++;
+        }
+
+        graph[u][v] = graph[v][u] = INF;
+    }
+
+    return 0;
+}
+
+
+5. dijkstras algo
+
+#include <stdio.h>
+#define INF 999999
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int graph[n][n];
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &graph[i][j]);
+
+    int start;
+    scanf("%d", &start);
+
+    int dist[n], visited[n];
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    dist[start] = 0;
+
+    for (int count = 0; count < n - 1; count++) {
+        int min = INF, u = -1;
+        for (int i = 0; i < n; i++)
+            if (!visited[i] && dist[i] < min) {
+                min = dist[i];
+                u = i;
+            }
+
+        visited[u] = 1;
+
+        for (int v = 0; v < n; v++)
+            if (graph[u][v] != 0 && dist[u] + graph[u][v] < dist[v])
+                dist[v] = dist[u] + graph[u][v];
+    }
+
+    for (int i = 0; i < n; i++)
+        printf("%d -> %d = %d\n", start, i, dist[i]);
+
+    return 0;
+}
+
+

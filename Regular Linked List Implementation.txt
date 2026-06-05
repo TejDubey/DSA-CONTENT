@@ -1,0 +1,530 @@
+Regular Exercise:
+Q1. Linked List:
+Rotate Linked List left by k positions
+
+input:
+3
+6 4
+3 6 9 12 15 18
+6 2
+2 4 6 8 10 12
+6 3
+4 8 12 16 20 24
+
+output:
+15 18 3 6 9 12 
+6 8 10 12 2 4 
+16 20 24 4 8 12
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node* next;
+};
+void addnode(struct Node** head,int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->next=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+}
+struct Node* rotateleft(struct Node* head, int k){
+    if(k==0 || head==NULL){
+        return head;
+    }
+    struct Node* curr=head;
+    for(int i=1;i<k;i++){
+        curr=curr->next;
+    }
+    if(curr->next==NULL) return head;
+    struct Node* newhead=curr->next;
+    curr->next=NULL;
+    struct Node* tail=newhead;
+    while(tail->next!=NULL){
+        tail=tail->next;
+    }
+    tail->next=head;
+    return newhead;
+}
+void display(struct Node* head){
+    struct Node* temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+    printf("\n");
+}
+int main(){
+    int x;
+    scanf("%d",&x);
+    for(int i=0;i<x;i++){
+        struct Node*head=NULL;
+        int n,k;
+        scanf("%d %d",&n,&k);
+        for(int i=0;i<n;i++){
+            int y;
+            scanf("%d",&y);
+            addnode(&head,y);
+        }
+        struct Node* newhead=rotateleft(head,k);
+        display(newhead);
+    }
+}
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+Q2. Sort LL in aesc order 
+
+input:
+5
+78 89 34 51 67
+
+output:
+34 51 67 78 89
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node* next;
+};
+void addnode(struct Node** head,int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->next=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+}
+void sort(struct Node* head){
+    if(head==NULL) return;
+    struct Node* i;
+    struct Node* j;
+    for(i=head;i->next!=NULL;i=i->next){
+        for(j=i->next;j!=NULL;j=j->next){
+            if(i->data > j->data){
+                int temp=i->data;
+                i->data=j->data;
+                j->data=temp;
+            }
+        }
+    }
+}
+void display(struct Node* head){
+    struct Node* temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+}
+int main(){
+    struct Node*head=NULL;
+    int n;
+    scanf("%d",&n);
+    for(int i=0;i<n;i++){
+        int y;
+        scanf("%d",&y);
+        addnode(&head,y);
+    }
+    sort(head);
+    display(head);
+}
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+Q3. insert even numbers at the front in reverse order and then insert odd numbers at end in reverse order
+
+input:
+5
+12 15 13 14 16
+
+output:
+16 14 12 13 15
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node*next;
+};
+void addnode(struct Node** head, int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->next=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node* temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+}
+void reverse(struct Node** head){
+    struct Node* prev=NULL;
+    struct Node* curr=*head;
+    struct Node* next=NULL;
+    while(curr!=0){
+        next=curr->next;
+        curr->next=prev;
+        prev=curr;
+        curr=next;
+    }
+    *head=prev;
+}
+void print(struct Node*head1, struct Node* head2){
+    struct Node* temp1=head1;
+    struct Node* temp2=head2;
+    while(temp1!=NULL){
+        printf("%d ",temp1->data);
+        temp1=temp1->next;
+    }
+    while(temp2!=NULL){
+        printf("%d ",temp2->data);
+        temp2=temp2->next;
+    }
+}
+int main(){
+    struct Node*head1=NULL;
+    struct Node*head2=NULL;
+    int n;
+    scanf("%d",&n);
+    for(int i=0;i<n;i++){
+        int y;
+        scanf("%d",&y);
+        if(y%2==0){
+            addnode(&head1,y);
+        }
+        else{
+            addnode(&head2,y);
+        }
+    }
+    reverse(&head1);
+    reverse(&head2);
+    print(head1,head2);
+}
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+Challenge Yourself:
+
+Q4.Reshma is learning about linked lists in her computer science class. She wants to implement a program that reverses a given linked list.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node*next;
+};
+void addnode(struct Node** head, int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->next=NULL;
+    newnode->data=val;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node*temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+}
+void reverse(struct Node** head){
+    struct Node*prev=NULL;
+    struct Node*curr=*head;
+    struct Node*next=NULL;
+    while(curr!=NULL){
+        next=curr->next;
+        curr->next=prev;
+        prev=curr;
+        curr=next;
+    }
+    *head=prev;
+}
+void display(struct Node*head){
+    printf("Reversed list: ");
+    struct Node*temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+}
+int main(){
+    int x;
+    scanf("%d",&x);
+    struct Node* head=NULL;
+    for(int i=0;i<x;i++){
+        int y;
+        scanf("%d",&y);
+        addnode(&head,y);
+    }
+    reverse(&head);
+    display(head);
+}
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+Q5. 
+
+You are tasked with implementing a program that manages a group of customers in a store. The store maintains a waiting list of customers in a singly linked list. A unique integer ID represents each customer.
+
+Write a program that adds customers one by one at the front of the line, removes the first customer from the front, and displays the same.
+
+Example:
+
+Input:
+
+4
+
+10 20 30 40
+
+Output:
+
+30 20 10 
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node*next;
+};
+void addnode(struct Node** head, int val){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->next=NULL;
+    newnode->data=val;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node*temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }
+    temp->next=newnode;
+}
+void reverse(struct Node** head){
+    struct Node*prev=NULL;
+    struct Node*curr=*head;
+    struct Node*next=NULL;
+    while(curr!=NULL){
+        next=curr->next;
+        curr->next=prev;
+        prev=curr;
+        curr=next;
+    }
+    *head=prev;
+}
+void deleteNodefront(struct Node** head){
+    struct Node *temp=*head;
+    *head=(*head)->next;
+    free(temp);
+}
+void display(struct Node*head){
+    struct Node*temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+}
+int main(){
+    int x;
+    scanf("%d",&x);
+    struct Node* head=NULL;
+    for(int i=0;i<x;i++){
+        int y;
+        scanf("%d",&y);
+        addnode(&head,y);
+    }
+    reverse(&head);
+    deleteNodefront(&head);
+    display(head);
+}
+
+__________________________________________________________________________________________________________________________________________________________________________
+
+
+Q6. Rohit is developing a student record management system using a singly linked list. Each student record is represented by a number (roll number).
+
+
+
+The system should allow the following operations:
+
+
+
+Insert at the Beginning – A new student is added at the start of the list.
+Insert at the End – A new student is added at the end of the list.
+Insert at a Given Position – A new student is added at the specified position (1-indexed).
+Print the Linked List – Displays the current student roll numbers in order.
+Exit – Terminates the program.
+
+
+If an invalid choice is entered, the system should display "Wrong choice".
+
+Input format :
+The input consists of a sequence of operations represented as integers.
+
+
+
+If the choice is 1 or 2, the input consists of the choice followed by one integer (the value to be inserted).
+
+If the choice is 3, the input consists of the choice followed by two integers: the position and the value to be inserted.
+
+If the choice is 4, the input consists of only the choice, which prints the current linked list.
+
+If the choice is 5, the input consists of only the choice, which terminates the program.
+
+Output format :
+For option 4, the output displays the elements present in the linked list, separated by a space.
+
+For option 5, the output displays "Exiting" indicating the termination of the program.
+
+If the choice is invalid, the output displays "Wrong choice"
+
+
+
+Refer to the sample input and output for better understanding.
+
+Code constraints :
+1 ≤ value ≤ 1000
+
+1 ≤ p ≤ N
+
+1 ≤ N ≤ 1000
+
+Sample test cases :
+Input 1 :
+1 10
+1 20
+2 30
+3 2 25
+1 37
+2 50
+4
+5
+Output 1 :
+37 20 25 10 30 50 
+Exiting
+Input 2 :
+2 10 
+2 -20
+1 40
+3 4 50
+4
+1 100
+7
+5
+Output 2 :
+40 10 -20 50 
+Wrong choice
+Exiting
+Input 3 :
+1 10
+4
+2 20
+7
+5
+Output 3 :
+10 
+Wrong choice
+Exiting
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+    int data;
+    struct Node*next;
+};
+void insertbegin(struct Node** head,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    newnode->next=*head;
+    *head=newnode;
+}
+void insertend(struct Node** head,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    newnode->next=NULL;
+    if(*head==NULL){
+        *head=newnode;
+        return;
+    }
+    struct Node*temp=*head;
+    while(temp->next!=NULL){
+        temp=temp->next;
+    }  
+    temp->next=newnode;
+}
+void insertatpos(struct Node** head,int pos,int x){
+    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=x;
+    if(pos==1){
+        newnode->next=NULL;
+        *head=newnode;
+        return;
+    }
+    struct Node*temp=*head;
+    for(int i=1;temp!=NULL && i<pos-1;i++){
+        temp=temp->next;
+    }
+    newnode->next=temp->next;
+    temp->next=newnode;
+}
+void display(struct Node*head){
+    struct Node*temp=head;
+    while(temp!=NULL){
+        printf("%d ",temp->data);
+        temp=temp->next;
+    }
+    printf("\n");
+}
+int main(){
+    int n;
+    struct Node*head=NULL;
+    while(scanf("%d",&n)!=-1){
+        switch(n){
+            case 1:{
+            int x;
+            scanf("%d",&x);
+            insertbegin(&head,x);
+            break;}
+            case 2:{
+            int x;
+            scanf("%d",&x);
+            insertend(&head,x);
+            break;}
+            case 3:{
+            int x,y;
+            scanf("%d %d",&y,&x);
+            insertatpos(&head,y,x);
+            break;}
+            case 4:
+            display(head);
+            break;
+            case 5:
+            printf("Exiting\n");
+            return 0;
+            break;
+            default:
+            printf("Wrong choice\n");
+            break;
+        }
+    }
+}

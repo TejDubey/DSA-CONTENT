@@ -1,0 +1,498 @@
+Expression Tree
+
+Q1. Write a program to construct the corresponding binary expression tree and print its inorder traversal to reflect the natural infix ordering of the operations.
+
+Sample test cases :
+Input 1 :
+231*+9-
+Output 1 :
+2 + 3 * 1 - 9 
+Input 2 :
+53*62-*
+Output 2 :
+5 * 3 * 6 - 2 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  char data;
+  struct Node*left;
+  struct Node*right;
+};
+struct Node* nodes[1000];
+int top=-1;
+void push(struct Node* n){
+    nodes[++top]=n;
+}
+struct Node*pop(){
+    return nodes[top--];
+}
+struct Node* constructTree(char pos[]){
+    for(int i=0;pos[i]!='\0';i++){
+        char c=pos[i];
+        struct Node*t=(struct Node*)malloc(sizeof(struct Node));
+        struct Node*t1,*t2;
+        if(c>='0'&&c<='9'){
+            t->data=c;
+            t->left=NULL;
+            t->right=NULL;
+            push(t);
+        }
+        else{
+            t1=pop();
+            t2=pop();
+            t->data=c;
+            t->left=t2;
+            t->right=t1;
+            push(t);
+        }
+    }
+    struct Node*t=pop();
+    return t;
+}
+void inorder(struct Node*t){
+    if(t==NULL) return;
+    inorder(t->left);
+    printf("%c ",t->data);
+    inorder(t->right);
+}
+int main(){
+    char pos[1000];
+    scanf("%s",pos);
+    struct Node* n= constructTree(pos);
+    inorder(n);
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q2. Abinath is working on a project to evaluate postfix expressions using an expression tree. He needs your assistance in developing a program that accomplishes the following tasks:
+Using a stack-based approach, implement a function to construct an expression tree from a given postfix expression.
+Develop a function to evaluate the constructed expression tree and obtain the final result of the postfix expression.
+Your task is to provide Abinath with a well-structured program that fulfills these requirements. After evaluating the expression, free allocated memory to ensure proper memory management.
+
+
+Input 1 :
+23*45+-
+Output 1 :
+Result: -3
+Input 2 :
+34+5*
+Output 2 :
+Result: 35
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  char data;
+  struct Node*left;
+  struct Node*right;
+};
+struct Node* nodes[1000];
+int top=-1;
+void push(struct Node* n){
+    nodes[++top]=n;
+}
+struct Node*pop(){
+    return nodes[top--];
+}
+struct Node* constructTree(char pos[]){
+    for(int i=0;pos[i]!='\0';i++){
+        char c=pos[i];
+        struct Node*t=(struct Node*)malloc(sizeof(struct Node));
+        struct Node*t1,*t2;
+        if(c>='0'&&c<='9'){
+            t->data=c;
+            t->left=NULL;
+            t->right=NULL;
+            push(t);
+        }
+        else{
+            t1=pop();
+            t2=pop();
+            t->data=c;
+            t->left=t2;
+            t->right=t1;
+            push(t);
+        }
+    }
+    struct Node*t=pop();
+    return t;
+}
+int evaluate(struct Node*root){
+    if(root==NULL) return 0;
+    if(!root->left && !root->right) return root->data-'0';
+    int l=evaluate(root->left);
+    int r=evaluate(root->right);
+    switch(root->data){
+        case '+': return l+r;
+        case '-': return l-r;
+        case '*': return l*r;
+        case '/': return l/r;
+    }
+}
+int main(){
+    char pos[1000];
+    scanf("%s",pos);
+    struct Node* n= constructTree(pos);
+    printf("Result: %d",evaluate(n));
+}
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+##this one is from infix and not postfix so we have to convert infix to postfix and then do
+
+Leena is delving into the world of expression trees, which are binary trees designed to represent mathematical expressions. She is intrigued by the procedure of constructing an expression tree from an infix expression and is eager to sharpen her skills in traversing the tree through different methods.
+Your task is to assist Leena by creating a program that, given an infix expression, generates the associated expression tree and conducts pre-order and post-order traversals.
+
+
+Sample test cases :
+Input 1 :
+A+B
+Output 1 :
+Pre-order Expression: +AB
+Post-order Expression: AB+
+Input 2 :
+A+B*C
+Output 2 :
+Pre-order Expression: +A*BC
+Post-order Expression: ABC*+
+Input 3 :
+A*B+C/D
+Output 3 :
+Pre-order Expression: +*AB/CD
+Post-order Expression: AB*CD/+
+Input 4 :
+A+B*C-D/E
+Output 4 :
+Pre-order Expression: -+A*BC/DE
+Post-order Expression: ABC*+DE/-
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+struct Node{
+    char data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* nodes[1000];
+int top = -1;
+
+void push(struct Node* n){
+    nodes[++top] = n;
+}
+
+struct Node* pop(){
+    return nodes[top--];
+}
+
+char opStack[1000];
+int opTop = -1;
+
+void pushOp(char c){
+    opStack[++opTop] = c;
+}
+
+char popOp(){
+    return opStack[opTop--];
+}
+
+char peekOp(){
+    if(opTop == -1) return '\0';
+    return opStack[opTop];
+}
+
+int precedence(char c){
+    if(c == '+' || c == '-') return 1;
+    if(c == '*' || c == '/') return 2;
+    if(c == '^') return 3;
+    return 0;
+}
+
+void infixToPostfix(char infix[], char postfix[]){
+    int j = 0;
+    for(int i = 0; infix[i] != '\0'; i++){
+        char c = infix[i];
+        if(isalnum(c)){ 
+            postfix[j++] = c;
+        } else if(c == '('){
+            pushOp(c);
+        } else if(c == ')'){
+            while(opTop != -1 && peekOp() != '('){
+                postfix[j++] = popOp();
+            }
+            popOp(); 
+        } else { 
+            while(opTop != -1 && precedence(peekOp()) >= precedence(c)){
+                postfix[j++] = popOp();
+            }
+            pushOp(c);
+        }
+    }
+    while(opTop != -1){
+        postfix[j++] = popOp();
+    }
+    postfix[j] = '\0';
+}
+
+struct Node* constructTree(char pos[]){
+    for(int i = 0; pos[i] != '\0'; i++){
+        char c = pos[i];
+        struct Node* t = (struct Node*)malloc(sizeof(struct Node));
+        t->left = t->right = NULL;
+        t->data = c;
+        if(isalnum(c)){
+            push(t);
+        } else {
+            struct Node* t1 = pop();
+            struct Node* t2 = pop();
+            t->left = t2;
+            t->right = t1;
+            push(t);
+        }
+    }
+    return pop();
+}
+
+void preorder(struct Node* t){
+    if(t == NULL) return;
+    printf("%c", t->data);
+    preorder(t->left);
+    preorder(t->right);
+}
+
+void postorder(struct Node* t){
+    if(t == NULL) return;
+    postorder(t->left);
+    postorder(t->right);
+    printf("%c", t->data);
+}
+
+int main(){
+    char infix[1000], postfix[1000];
+    scanf("%s", infix);
+    infixToPostfix(infix, postfix);
+    struct Node* root = constructTree(postfix);
+    printf("Pre-order Expression: ");
+    preorder(root);
+    printf("\nPost-order Expression: ");
+    postorder(root);
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Debugging System codes:
+
+Neha is working on a postfix expression converter that should build an expression tree and print its prefix form. However, her current program produces incorrect results due to logical errors in stack handling, operand/operator order, and incorrect traversal logic. 
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_SIZE 100
+
+struct Node {
+    char data[MAX_SIZE];
+    struct Node* left;
+    struct Node* right;
+};
+
+int isOperand(char c) {
+    return isalpha(c);
+}
+
+struct Node* createNode(const char data[MAX_SIZE]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    strcpy(newNode->data, data);
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+struct Node* postfixToTree(const char* postfix) {
+    struct Node* stack[MAX_SIZE];
+    int top = 1;
+
+    for (int i = 0; postfix[i] != '\0'; i++) {
+        if (isOperand(postfix[i])) {
+            char op[2] = {postfix[i], '\0'};
+            stack[++top] = createNode(op);
+        } else {
+            struct Node* op1 = stack[top--];
+            struct Node* op2 = stack[top--];
+            struct Node* temp = createNode("");
+            sprintf(temp->data, "%c", postfix[i]);
+            temp->left = op2;
+            temp->right = op1;
+            stack[++top] = temp;
+        }
+    }
+
+    return stack[top];
+}
+
+void preOrder(struct Node* root) {
+    if (root != NULL) {
+        printf("%s", root->data);
+        preOrder(root->left);
+        preOrder(root->right);
+    }
+}
+
+int main() {
+    char postfix[MAX_SIZE];
+    if (scanf("%s", postfix) != 1) return 0;
+
+    struct Node* root = postfixToTree(postfix);
+
+    preOrder(root);
+    printf("\n");
+
+    free(root);
+
+    return 0;
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Arjun is implementing an infix-to-postfix converter using an expression tree but finds that his current code outputs incorrect postfix expressions due to multiple logical bugs. 
+The goal is to debug the program so that it correctly constructs an expression tree from an infix expression and prints the corresponding postfix form by performing a post-order traversal. The objective is to ensure the output correctly represents the postfix equivalent of the given infix expression.
+
+
+Sample test cases :
+Input 1 :
+a+b+c
+Output 1 :
+ab+c+
+Input 2 :
+a*b+c
+Output 2 :
+ab*c+
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+#define MAX 100
+
+typedef struct Node {
+    char data;
+    struct Node *left, *right;
+} Node;
+
+typedef struct {
+    Node *items[MAX];
+    int top;
+} NodeStack;
+
+typedef struct {
+    char items[MAX];
+    int top;
+} CharStack;
+
+void initNodeStack(NodeStack *s) { s->top = -1; }
+void pushNode(NodeStack *s, Node *n) { s->items[++s->top] = n; }
+Node* popNode(NodeStack *s) { return s->items[s->top--]; }
+
+void initCharStack(CharStack *s) { s->top = -1; }
+void pushChar(CharStack *s, char c) { s->items[++s->top] = c; }
+char popChar(CharStack *s) { return s->items[s->top--]; }
+char peekChar(CharStack *s) { return s->items[s->top]; }
+int isCharEmpty(CharStack *s) { return s->top < 0; }
+
+Node* newNode(char c) {
+    Node *n = (Node*)malloc(sizeof(Node)); 
+    n->data = c;
+    n->left = n->right = NULL;
+    return n;
+}
+
+int prec(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+Node* buildTree(char *expr) {
+    NodeStack nodes;
+    CharStack ops;
+    initNodeStack(&nodes);
+    initCharStack(&ops);
+
+    for (int i = 0; expr[i]; i++) {
+        char c = expr[i];
+        if (c == ' ') continue;
+        if (isalnum(c)) {
+            pushNode(&nodes, newNode(c));
+        }
+        else if (c == '(') {
+            pushChar(&ops, c);
+        }
+        else if (c == ')') {
+            while (!isCharEmpty(&ops) && peekChar(&ops) != '(') {
+                char op = popChar(&ops);
+                Node *r = popNode(&nodes);
+                Node *l = popNode(&nodes);
+                Node *n = newNode(op);
+                n->left = l;
+                n->right = r;
+                pushNode(&nodes, n);
+            }
+            popChar(&ops);
+        }
+        else {
+            while (!isCharEmpty(&ops) && peekChar(&ops) != '('
+                   && prec(peekChar(&ops)) >= prec(c)) {
+                char op = popChar(&ops);
+                Node *r = popNode(&nodes);
+                Node *l = popNode(&nodes);
+                Node *n = newNode(op);
+                n->left = l;
+                n->right = r;
+                pushNode(&nodes, n);
+            }
+            pushChar(&ops, c);
+        }
+    }
+
+    while (!isCharEmpty(&ops)) {
+        char op = popChar(&ops);
+        Node *r = popNode(&nodes);
+        Node *l = popNode(&nodes);
+        Node *n = newNode(op);
+        n->left = l;
+        n->right = r;
+        pushNode(&nodes, n);
+    }
+    return nodes.items[0];
+}
+
+void postOrder(Node *root) {
+    if (!root) return;
+    postOrder(root->left);
+    postOrder(root->right);
+    putchar(root->data);
+}
+
+int main() {
+    char expr[MAX];
+    if (!fgets(expr, MAX, stdin)) return 0;
+    expr[strcspn(expr, "\n")] = '\0';
+
+    Node *root = buildTree(expr);
+    postOrder(root);
+    putchar('\n');
+    return 0;
+}

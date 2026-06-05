@@ -1,0 +1,965 @@
+Binary Search Tree
+
+
+//remember to keep returning recursive results 
+ else if(root->data<x){
+     return findlevel(root->right,x, level + 1);
+ }
+// remember to take extra line by scanf(" %c",&ch);
+
+1. Neha has written a program to construct a Binary Search Tree (BST) and perform a level order traversal of its nodes while computing the product of the first node values at each level. 
+
+Input 1 :
+5
+10 5 20 3 7
+Output 1 :
+10 5 20 3 7 
+150
+Input 2 :
+4
+15 10 5 20
+Output 2 :
+15 10 20 5 
+750
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        return newNode(data);
+    }
+
+    if (data > root->data) {
+        root->right = insert(root->right, data);
+    } else if (data <= root->data) {
+        root->left = insert(root->left, data);
+    }
+
+    return root;
+}
+
+void levelOrderTraversal(struct Node* root, int level, int* product, int* isFirst) {
+    if (root == NULL) {
+        return;
+    }
+
+    if (level == 1) {
+        printf("%d ", root->data);
+
+        if (*isFirst) {
+            *product *= root->data;
+            *isFirst = 0;
+        }
+    } else {
+        levelOrderTraversal(root->left, level - 1, product, isFirst);
+        levelOrderTraversal(root->right, level - 1, product, isFirst);
+    }
+}
+
+int height(struct Node* node) {
+    if (node == NULL) {
+        return 0;
+    }
+
+    int leftHeight = height(node->left);
+    int rightHeight = height(node->right);
+
+    return 1+((leftHeight > rightHeight) ? leftHeight : rightHeight);
+}
+
+int main() {
+    int N;
+    scanf("%d", &N);
+    int values[N+1];
+    
+    for (int i = 1; i <= N; i++) {
+        scanf("%d", &values[i]);
+    }
+
+    struct Node* root = NULL;
+
+    for (int i = 1; i <= N; i++) {
+        root = insert(root, values[i]);
+    }
+
+    int treeHeight = height(root);
+
+    int product = 1;
+
+    for (int level = 1; level <= treeHeight; level++) {
+        int isFirst = 1;
+        levelOrderTraversal(root, level, &product, &isFirst);
+    }
+
+    printf("\n");
+    printf("%d\n", product);
+
+    return 0;
+}
+
+
+2. BST implementation so that nodes are inserted correctly according to BST rules and the postorder traversal outputs the correct sequence. Write a program to ensure that the BST operations function as intended.
+
+Sample test cases :
+Input 1 :
+5
+50 30 20 40 70
+Output 1 :
+20 40 30 70 50 
+Input 2 :
+6
+40 20 60 10 30 50
+Output 2 :
+10 30 20 50 60 40 
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* createNode(int value) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = value;
+    node->left = node->right = NULL;
+    return node;
+}
+
+struct Node* insert(struct Node* root, int value) {
+    if (root == NULL)
+        return createNode(value);
+
+    if (value < root->data)
+        root->left = insert(root->left, value);
+    else 
+        root->right = insert(root->right, value);
+
+    return root;
+}
+
+void postorder(struct Node* root) {
+    if (root == NULL)
+        return;
+
+    postorder(root->left);
+    postorder(root->right);
+    printf("%d ", root->data);
+}
+
+int main() {
+    int n, value;
+    struct Node* root = NULL;
+
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &value);
+        root = insert(root, value);
+    }
+
+    postorder(root);
+    printf("\n");
+
+    return 0;
+}
+
+
+3. Maya is developing a smart warehouse inventory system. She maintains the quantities of different items in a Binary Search Tree (BST). Occasionally, she wants to remove all items whose quantities exceed the average quantity of all items to prevent overstock.
+
+Your task is to help Maya implement this operation: build a BST from the given item quantities, compute the average quantity, delete all nodes greater than the average, and then print the remaining quantities in ascending order.
+
+Input 1 :
+5
+10 80 30 40 50
+Output 1 :
+10 30 40 
+Input 2 :
+4
+40 50 60 70
+Output 2 :
+40 50 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL)
+        return newNode(data);
+
+    if (data >= root->data)
+        root->right = insert(root->right, data);
+    else if (data < root->data)
+        root->left = insert(root->left, data);
+
+    return root;
+}
+
+void inOrderTraversal(struct Node* root) {
+    if (root) {
+        inOrderTraversal(root->left);
+        printf("%d ", root->data);
+        inOrderTraversal(root->right);
+    }
+}
+
+int sumNodes(struct Node* root) {
+    if (root == NULL)
+        return 0;
+
+    return root->data + sumNodes(root->right) + sumNodes(root->left);
+}
+
+int countNodes(struct Node* root) {
+    if (root == NULL)
+        return 0;
+
+    return 1 + countNodes(root->right) + countNodes(root->left);
+}
+
+void deleteGreaterThanAverage(struct Node** root, int avg) {
+    if (*root == NULL)
+        return;
+
+    deleteGreaterThanAverage(&((*root)->right), avg);
+    deleteGreaterThanAverage(&((*root)->left), avg);
+
+    if ((*root)->data > avg) {
+        struct Node* temp = *root;
+        *root = (*root)->left;
+        free(temp);
+    }
+}
+
+int main() {
+    struct Node* root = NULL;
+    int n, data;
+
+    scanf("%d", &n);
+
+    for (int i = 1; i <= n; i++) {
+        scanf("%d", &data);
+        root = insert(root, data);
+    }
+
+    int sum = sumNodes(root);
+    int count = countNodes(root);
+    int avg = count ? sum / count : 0;
+
+    deleteGreaterThanAverage(&root, avg);
+
+    inOrderTraversal(root);
+
+    return 0;
+}
+
+
+4. Your task is to help Nina check if two BSTs are identical. Two BSTs are identical if they have the same structure and the same node values.
+
+Input 1 :
+1 2 3 4 5 -1
+1 2 3 4 5 -1
+Output 1 :
+Both BSTs are identical
+Input 2 :
+15 13 18 24 25 -1
+15 13 18 25 24 -1
+Output 2 :
+BSTs are not identical
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL)
+        return newNode(data);
+    
+    if (data >= root->data)
+        root->right = insert(root->right, data);
+    else if (data < root->data)
+        root->left = insert(root->left, data);
+
+    return root;
+}
+
+void inorder(struct Node* root) {
+    if (root == NULL)
+        return;
+
+    inorder(root->left);
+    printf("%d ", root->data);
+    inorder(root->right);
+}
+
+int isIdentical(struct Node* root1, struct Node* root2) {
+    if (root1 == NULL && root2 == NULL)
+        return 1;
+    else if (root1 == NULL || root2 == NULL)
+        return 0;
+    else {
+        if (root1->data == root2->data && isIdentical(root1->left, root2->left) &&
+            isIdentical(root1->right, root2->right))
+            return 1;
+        else
+            return 0;
+    }
+}
+
+int main() {
+    struct Node* root1 = NULL;
+    struct Node* root2 = NULL;
+    int data;
+
+    while (1) {
+        scanf("%d", &data);
+        if (data == -1)
+            break;
+        root1 = insert(root1, data);
+    }
+
+    while (1) {
+        scanf("%d", &data);
+        if (data == -1)
+            break;
+        root2 = insert(root2, data);
+    }
+
+    if (isIdentical(root1, root2))
+        printf("Both BSTs are identical\n");
+    else
+        printf("BSTs are not identical\n");
+
+    return 0;
+}
+
+
+
+5.  insert numbers into the BST, perform preorder traversal, and find the number with the maximum number of factors
+
+Input 1 :
+5
+10 5 20 3 7
+Output 1 :
+10 5 3 7 20 
+20
+Input 2 :
+5
+12 6 18 3 9
+Output 2 :
+12 6 3 9 18 
+12
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+struct Node* insert(struct Node* root, int data) {
+    if (root == NULL) {
+        return newNode(data);
+    }
+
+    if (data > root->data) {
+        root->right = insert(root->right, data);
+    } else if (data <= root->data) {
+        root->left = insert(root->left, data);
+    }
+
+    return root;
+}
+
+int countFactors(int n) {
+    int count = 0;
+    for (int i = 2; i < n; i++) {
+        if (n % i == 0) {
+            count++;
+        }
+    }
+    return count;
+}
+
+void preorderTraversal(struct Node* root, int* maxFactors, int* maxNode) {
+    if (root == NULL) {
+        return;
+    }
+
+    int factors = countFactors(root->data);
+
+    if (factors > *maxFactors) {
+        *maxFactors = factors;
+        *maxNode = root->data;
+    }
+
+    printf("%d ", root->data);
+    preorderTraversal(root->left, maxFactors, maxNode);
+    preorderTraversal(root->right, maxFactors, maxNode);
+}
+
+int main() {
+    int N;
+    scanf("%d", &N); 
+    int values[N+1];
+    
+    for (int i = 1; i <= N; i++) {
+        scanf("%d", &values[i]);
+    }
+
+    struct Node* root = NULL;
+
+    for (int i = 1; i <= N; i++) {
+        root = insert(root, values[i]);
+    }
+
+    int maxFactors = 0; 
+    int maxNode = -1;   
+
+    preorderTraversal(root, &maxFactors, &maxNode);
+
+    printf("\n");
+    printf("%d\n", maxNode);  
+
+    return 0;
+}
+
+
+
+6. He wants to find the predecessor of a given player’s skill rating k. The predecessor is defined as the highest skill rating in the BST that is strictly less than k. If no such rating exists, the predecessor is -1.
+
+Input 1 :
+8
+100 50 150 25 75 125 175 200
+125
+Output 1 :
+100
+Input 2 :
+6
+60 30 80 20 40 70
+80
+Output 2 :
+70
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*) malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+struct Node* insert(struct Node* root, int value) {
+    if (root == NULL)
+        return createNode(value);
+    if (value >= root->data)
+        root->right = insert(root->right, value);
+    else if (value < root->data)
+        root->left = insert(root->left, value);
+    return root;
+}
+
+int findPredecessor(struct Node* root, int k) {
+    int predecessor = -1;
+    while (root != NULL) {
+        if (root->data < k) {
+            predecessor = root->data;
+            root = root->right;
+        } else {
+            root = root->left;
+        }
+    }
+    return predecessor;
+}
+
+int main() {
+    int n, value, k;
+    struct Node* root = NULL;
+
+    scanf("%d", &n);
+
+    for (int i = 1; i <= n; i++) {
+        scanf("%d", &value);
+        root = insert(root, value);
+    }
+
+    scanf("%d", &k);
+
+    int pred = findPredecessor(root, k);
+    printf("%d\n", pred);
+
+    return 0;
+}
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Q1. tree construction + postorder traversal 
+
+Input 1 :
+5
+Z E W T Y
+Output 1 :
+Postorder traversal: T Y W E Z 
+Input 2 :
+6
+F B G A D C
+Output 2 :
+Postorder traversal: A C D B G F 
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  char data;
+  struct Node*left, *right;
+};
+struct Node* createNode(char val){
+    struct Node*newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->left=NULL;
+    newnode->right=NULL;
+    return newnode;
+}
+struct Node* insert(struct Node*root, char val){
+    if(root==NULL) return createNode(val);
+    else if(root->data>val){
+        root->left=insert(root->left,val);
+    }
+    else{
+        root->right=insert(root->right,val);
+    }
+    return root;
+}
+void postorder(struct Node*root){
+    if(root==NULL) return;
+    postorder(root->left);
+    postorder(root->right);
+    printf("%c ",root->data);
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    struct Node*root=NULL;
+    for(int i=0;i<n;i++){
+        char ch;
+        scanf(" %c",&ch);
+        root=insert(root,ch);
+    }
+    printf("Postorder traversal: ");
+    postorder(root);
+}
+
+
+Q2. BFT Breadths First Traversal
+
+Tim is learning about binary search trees and their traversal techniques. 
+He wants to implement a program that constructs a binary search tree by inserting nodes and then performs a level order traversal on the binary search tree.
+
+Input 1 :
+2 3 1 0
+Output 1 :
+2 1 3 
+Input 2 :
+3 5 4 7 1 -6
+Output 2 :
+3 1 5 4 7 
+
+The input consists of space-separated integers, representing the nodes to be inserted into the binary search tree. The input ends when a non-positive integer or 0 is entered.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  int data;
+  struct Node*left, *right;
+};
+struct Node* createNode(int val){
+    struct Node*newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->left=NULL;
+    newnode->right=NULL;
+    return newnode;
+}
+struct Node* insert(struct Node*root, int val){
+    if(root==NULL) return createNode(val);
+    else if(root->data>val){
+        root->left=insert(root->left,val);
+    }
+    else{
+        root->right=insert(root->right,val);
+    }
+    return root;
+}
+int height(struct Node*root){
+    if(root==NULL) return 0;
+    else return 1+height(root->left)+height(root->right);
+}
+void levelOrderTraversal(struct Node* root, int level) {
+    if (root == NULL) return;
+    if (level == 1)
+        printf("%d ", root->data);
+    else {
+        levelOrderTraversal(root->left, level - 1);
+        levelOrderTraversal(root->right, level - 1);
+    }
+}
+int main(){
+    int n;
+    struct Node*root=NULL;
+    while(!(scanf("%d",&n)<=0)){
+        if(n>0){
+            root=insert(root,n);
+        }
+    }
+    int h=height(root);
+    for(int i=1;i<=h;i++){
+        levelOrderTraversal(root,i);
+    }
+}
+
+
+3. Toy loves trees, especially alphabet trees! He wants to build his alphabet tree by inserting characters one by one. Given a sequence of characters, Toy needs to construct a binary search tree where each node contains a character. After constructing the tree, Toy wants to search for a specific character in the tree to see if it exists or not.
+
+Write a program to help Toy construct his alphabet tree and perform searches.
+
+Input 1 :
+5
+F A B C D
+B
+Output 1 :
+Character - B is Found
+Input 2 :
+4
+D B E A
+C
+Output 2 :
+Character - C is Not Found
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  char data;
+  struct Node*left, *right;
+};
+struct Node*createNode(char val){
+    struct Node*newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->left=newnode->right=NULL;
+    return newnode;
+}
+struct Node*insert(struct Node*root, char val){
+    if(root==NULL) return createNode(val);
+    else if(root->data<val){
+        root->right=insert(root->right,val);
+    }
+    else if(root->data>val){
+        root->left=insert(root->left,val);
+    }
+    return root;
+}
+int search(struct Node*root, char t){
+    if(root==NULL) return 0;
+    if(root->data==t) return 1;
+    if(root->data<t){
+        return search(root->right,t);
+    }
+    else{
+        return search(root->left,t);
+    }
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    struct Node*root=NULL;
+    for(int i=0;i<n;i++){
+        char ch;
+        scanf(" %c",&ch);
+        root=insert(root,ch);
+    }
+    char t;
+    scanf(" %c",&t);
+    if(search(root,t)==1){
+        printf("Character - %c is Found",t);
+    }
+    else{
+        printf("Character - %c is Not Found",t);
+    }
+}
+
+
+Q4. Aiden, a software engineer, is working on an algorithm to determine the level of a specific node within a Binary Search Tree (BST). He wants to implement a function that will find and return the level of a given node in a BST. 
+
+Input 1 :
+7
+20 10 30 5 15 25 35
+25
+Output 1 :
+2
+Input 2 :
+10
+35 24 10 32 23 26 16 41 28 30
+23
+Output 2 :
+3
+
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  int data;
+  struct Node*left, *right;
+};
+struct Node* createNode(int val){
+    struct Node*newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->left=NULL;
+    newnode->right=NULL;
+    return newnode;
+}
+struct Node* insert(struct Node*root, int val){
+    if(root==NULL) return createNode(val);
+    else if(root->data>val){
+        root->left=insert(root->left,val);
+    }
+    else{
+        root->right=insert(root->right,val);
+    }
+    return root;
+}
+int findlevel(struct Node* root,int x, int level) {
+    if (root == NULL) return 0;
+    if (root->data==x) return level;
+    else if(root->data<x){
+        return findlevel(root->right,x, level + 1);
+    }
+    else{
+        return findlevel(root->left,x, level + 1);
+    }
+}
+int main(){
+    int n;
+    struct Node*root=NULL;
+    scanf("%d",&n);
+    int n1;
+    for(int i=0;i<n;i++){
+        scanf("%d",&n1);
+        root=insert(root,n1);
+    }
+    int f;
+    scanf("%d",&f);
+    int z=findlevel(root,f,0);
+    printf("%d",z);
+}
+
+Q5. Given a sequence of characters representing the values to be inserted into a binary search tree, followed by a character V to be deleted from the tree, your task is to construct the binary search tree and delete the specified character from it.
+
+Input 1 :
+5
+F B G A D
+B
+Output 1 :
+A D F G 
+Input 2 :
+3
+C V B
+I
+Output 2 :
+B C V 
+
+//agar 1 right child hai
+/*
+    suppose to delete 3
+         1
+        / \
+       2   3
+            \
+             5
+    3 is greater than 1 so if(root->data<val) root->right=deletenode(root->right,val);
+    this calls deletenode and delte node goes in else condition and returns value 5 which is attached to root->right mtlb 1 ka right 5
+*/
+#include <stdio.h>
+#include <stdlib.h>
+struct Node{
+  char data;
+  struct Node*left,*right;
+};
+struct Node*createNode(char val){
+    struct Node*newnode=(struct Node*)malloc(sizeof(struct Node));
+    newnode->data=val;
+    newnode->left=newnode->right=NULL;
+    return newnode;
+}
+struct Node*insert(struct Node*root, char val){
+    if(root==NULL) return createNode(val);
+    if(root->data<val) root->right=insert(root->right,val);
+    else if(root->data>val) root->left=insert(root->left,val);
+    return root;
+}
+void inorder_or_sorted_order(struct Node*root){
+    if(root==NULL) return;
+    inorder_or_sorted_order(root->left);
+    printf("%c ",root->data);
+    inorder_or_sorted_order(root->right);
+}
+struct Node* findmin(struct Node*root){
+    while(root->left!=NULL) root=root->left;
+    return root;
+}
+struct Node* deletenode(struct Node*root, char val){
+    if(root==NULL) return root;
+    if(root->data<val) root->right=deletenode(root->right,val);
+    else if(root->data>val) root->left=deletenode(root->left,val);
+    else{
+        //root->data==val
+        // 0 child
+        if(root->left==NULL && root->right==NULL){
+            free(root);
+            return NULL;
+        }
+        // 1 right child hai to
+        else if(root->left==NULL){
+            struct Node*temp=root->right;
+            free(root);
+            return temp;
+        }
+        // 1 left child hai to
+        else if(root->right==NULL){
+            struct Node*temp=root->right;
+            free(root);
+            return temp;
+        }
+        // 2 child left and right both
+        else if(root->left!=NULL && root->right!=NULL){
+            struct Node*temp=findmin(root->right);
+            root->data=temp->data;
+            root->right=deletenode(root->right,temp->data);
+        }
+    }
+    return root;
+}
+int main(){
+    int n;
+    scanf("%d",&n);
+    char ch;
+    struct Node*root=NULL;
+    for(int i=0;i<n;i++){
+        scanf(" %c",&ch);
+        root=insert(root,ch);
+    }
+    char x;
+    scanf(" %c",&x);
+    deletenode(root,x);
+    inorder_or_sorted_order(root);
+}
+-----------------------------------------------------------------------------------------------------------------------------------------------
+BST deletion leetcode style
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int findmin(struct TreeNode*t){
+    while(t->left!=NULL){
+        t=t->left;
+    }
+    return t->val;
+}
+struct TreeNode* deleteNode(struct TreeNode* root, int key) {
+    if(root==NULL) return NULL;
+    else if(root->val==key){
+        if(root->left==NULL && root->right==NULL){ //0 child 
+            free(root);
+            return NULL;
+        }
+        else if(root->left!=NULL && root->right==NULL){ //1 child left child
+            struct TreeNode*t=root->left;
+            free(root);
+            return t;
+        }
+        else if(root->left==NULL && root->right!=NULL){ //1 child right child
+            struct TreeNode*t=root->right;
+            free(root);
+            return t;
+        }
+        else if(root->left!=NULL && root->right!=NULL){ //2 child left and right
+            int min=findmin(root->right);
+            root->val=min;
+            root->right=deleteNode(root->right,min);
+        }
+    }
+    else if(root->val>key){
+        root->left=deleteNode(root->left,key);
+    }
+    else if(root->val<key){
+        root->right=deleteNode(root->right,key);
+    }
+    return root;
+}
